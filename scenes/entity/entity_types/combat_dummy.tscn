@@ -1,0 +1,76 @@
+[gd_scene load_steps=7 format=3 uid="uid://dba1hfvlqg084"]
+
+[ext_resource type="Texture2D" uid="uid://cqiitoovprsdf" path="res://scenes/test/dummy.png" id="1_nwi4p"]
+
+[sub_resource type="GDScript" id="GDScript_1d7ic"]
+script/source = "extends Entity
+
+@onready var animation_player = $AnimationPlayer
+
+func _ready():
+	invul = -1
+
+func damage(damage_source: DamageSource, hurt_points: int, type: DamageSource.TYPE):
+	animation_player.stop()
+	animation_player.play(\"Hit\")
+	return super.damage(damage_source, hurt_points, type)
+"
+
+[sub_resource type="Animation" id="Animation_5lmdu"]
+resource_name = "Hit"
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CombatDummy/Sprite:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0, 0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.2, 0.563645, -0.216726, -0.2, 0.047268, 0.3, 0.0324621, 0.185, -0.25, 0, 0.1, 0.0365205, 0, -0.2, -0.0706437, 0.25, 0),
+"times": PackedFloat32Array(0, 0.3, 0.7, 1)
+}
+
+[sub_resource type="Animation" id="Animation_jsy0c"]
+length = 0.001
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CombatDummy/Sprite:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_lb5yt"]
+_data = {
+"Hit": SubResource("Animation_5lmdu"),
+"RESET": SubResource("Animation_jsy0c")
+}
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ufx1m"]
+radius = 5.0
+height = 14.0
+
+[node name="CombatDummy" type="CharacterBody2D"]
+position = Vector2(72, -26)
+collision_layer = 2
+collision_mask = 0
+script = SubResource("GDScript_1d7ic")
+max_hp = 999
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+root_node = NodePath("../..")
+libraries = {
+"": SubResource("AnimationLibrary_lb5yt")
+}
+
+[node name="Sprite" type="Sprite2D" parent="."]
+texture = ExtResource("1_nwi4p")
+offset = Vector2(0, -8)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -6)
+shape = SubResource("CapsuleShape2D_ufx1m")

@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=3 uid="uid://e4fft5eyow0s"]
+
+[ext_resource type="Texture2D" uid="uid://cpir3ejmpbe2o" path="res://scenes/weapon/weapon_sprites/basic_sword.png" id="1_gauw1"]
+
+[sub_resource type="GDScript" id="GDScript_8rapv"]
+resource_name = "basic_sword"
+script/source = "extends GenericWeapon
+
+func _get_weapon_data() -> WeaponData:
+	return WeaponData.new().set_display_name(\"Iron Sword\")
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process_weapon(aim: Vector2):
+	rotation = aim.angle()
+"
+
+[node name="BasicSword" type="Node2D"]
+script = SubResource("GDScript_8rapv")
+
+[node name="Sword" type="Sprite2D" parent="."]
+position = Vector2(-9, 0)
+texture = ExtResource("1_gauw1")
+offset = Vector2(0, -3)
