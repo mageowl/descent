@@ -52,10 +52,9 @@ _data = {
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ufx1m"]
 radius = 5.0
-height = 14.0
+height = 16.0
 
 [node name="CombatDummy" type="CharacterBody2D"]
-position = Vector2(72, -26)
 collision_layer = 2
 collision_mask = 0
 script = SubResource("GDScript_1d7ic")
@@ -72,5 +71,5 @@ texture = ExtResource("1_nwi4p")
 offset = Vector2(0, -8)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, -6)
+position = Vector2(0, -8)
 shape = SubResource("CapsuleShape2D_ufx1m")

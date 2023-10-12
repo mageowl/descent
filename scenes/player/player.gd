@@ -15,7 +15,8 @@ const JUMP_GRAVITY = 900.0
 const CYOTE_TIME = 8
 const HOLD_JUMP = 4
 
-@onready var weapons = $Weapon
+@export var player_index = 0
+@onready var weapon_container = $Weapons
 @onready var animation_tree = $Sprite/AnimationTree
 @onready var sprite = $Sprite
 @onready var input_map: FilteredInputMap = $InputMap
@@ -25,7 +26,17 @@ var jump_input = 0
 var short_jump = false
 var short_jumped = false
 
-var current_weapon = 0
+var weapons: Array[GenericWeapon.WeaponData] = []
+var current_weapon: GenericWeapon
+
+func _enter_tree():
+	name = StringName("Player" + str(player_index + 1))
+
+func _ready():
+	input_map.controller = player_index
+	
+	for weapon in weapon_container.get_children():
+		weapon._set_input_map(input_map)
 
 func animate(direction):
 	var set_p = func (property, value): 
@@ -41,7 +52,6 @@ func animate(direction):
 			var squash_factor: float = min(impact / 10.0, 50.0) / 80.0
 			set_p.call("squash/blend_position", -squash_factor)
 			impact -= 50
-			print("now using impact" + str(squash_factor))
 		else: 
 			set_p.call("squash/blend_position", 0)
 			
@@ -92,9 +102,10 @@ func _physics_process(delta):
 	var direction = movement(delta)
 	animate(direction)
 	
-	var aim = Util.deadzone2(input_map.get_vector("left", "right", "aim_up", "aim_down")).normalized().snapped(Vector2(1, 1))
-	if aim == Vector2.ZERO: aim.x = int(sprite.flip_h) * -2 + 1
-	if aim.y > 0: aim.x = 0
-	weapons.get_child(current_weapon)._process_weapon(aim)
+	if current_weapon != null:
+		var aim = Util.deadzone2(input_map.get_vector("left", "right", "aim_up", "aim_down")).normalized().snapped(Vector2(1, 1))
+		if aim == Vector2.ZERO: aim.x = int(sprite.flip_h) * -2 + 1
+		if aim.y > 0 and not input_map.is_action_pressed("aim"): aim.x = 0
+		current_weapon._process_weapon(aim)
 	
 	move_and_slide()

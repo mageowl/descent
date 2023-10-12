@@ -1,9 +1,10 @@
-[gd_scene load_steps=24 format=3 uid="uid://mpb3hkk48g22"]
+[gd_scene load_steps=25 format=3 uid="uid://mpb3hkk48g22"]
 
 [ext_resource type="Texture2D" uid="uid://pddkgxhnrskj" path="res://scenes/player/gator.png" id="1_bdxws"]
 [ext_resource type="Script" path="res://scenes/player/player.gd" id="1_cadx7"]
 [ext_resource type="AnimationLibrary" uid="uid://b6plggdiycbjf" path="res://scenes/player/gator.tres" id="3_05bc4"]
 [ext_resource type="PackedScene" uid="uid://bdbrbjgnblxwq" path="res://scenes/weapon/weapon_types/silver_pistol.tscn" id="3_uff5s"]
+[ext_resource type="PackedScene" uid="uid://dd1x5hlymoupa" path="res://scenes/weapon/weapon_types/flare_bloom.tscn" id="5_8sst0"]
 [ext_resource type="Script" path="res://global/classes/filtered_input_map.gd" id="5_ya4st"]
 [ext_resource type="Texture2D" uid="uid://b6wfm3sjx8s65" path="res://scenes/player/marker-1.png" id="6_3rr87"]
 
@@ -121,7 +122,7 @@ position = Vector2(0, 8)
 texture = ExtResource("1_bdxws")
 offset = Vector2(0, -8)
 region_enabled = true
-region_rect = Rect2(16, 0, 16, 16)
+region_rect = Rect2(0, 0, 16, 16)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Sprite"]
 libraries = {
@@ -145,10 +146,13 @@ parameters/tilting/current_state = "static"
 parameters/tilting/transition_request = ""
 parameters/tilting/current_index = 2
 
-[node name="Weapon" type="Node2D" parent="."]
+[node name="Weapons" type="Node2D" parent="."]
 position = Vector2(0, 3)
 
-[node name="SilverPistol" parent="Weapon" instance=ExtResource("3_uff5s")]
+[node name="FlareBloom" parent="Weapons" instance=ExtResource("5_8sst0")]
+
+[node name="SilverPistol" parent="Weapons" instance=ExtResource("3_uff5s")]
+visible = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 2.5)

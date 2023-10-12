@@ -3,7 +3,7 @@ let s:so_save = &g:so | let s:siso_save = &g:siso | setg so=0 siso=0 | setl so=-
 let v:this_session=expand("<sfile>:p")
 silent only
 silent tabonly
-cd ~
+cd ~/godot/descent
 if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
@@ -13,28 +13,16 @@ if &shortmess =~ 'A'
 else
   set shortmess=aoO
 endif
-badd +1 godot/descent/Session.vim
-badd +1 godot/descent/global/classes/damage_source.gd
-badd +20 godot/descent/scenes/weapon/generic.gd
-badd +1 godot/descent/scenes/weapon/basic_bullet.gd
-badd +60 godot/descent/scenes/weapon/generic_bullet.gd
-badd +24 godot/descent/global/classes/modifiers/modifier_array.gd
-badd +4 godot/descent/global/classes/modifiers/modifier.gd
-badd +1 godot/descent
-badd +20 godot/descent/global/global_particle_manager.gd
-badd +8 godot/descent/scenes/entity/entity.gd
-badd +94 godot/descent/scenes/player/player.gd
-badd +28 godot/descent/scenes/weapon/object_pool.gd
-badd +1 godot/descent/scenes/player/john.png
+badd +0 scenes/player/player.gd
+badd +55 scenes/weapon/generic_bullet.gd
+badd +11 ~/godot/descent/scenes/weapon/generic.gd
 argglobal
 %argdel
-$argadd godot/descent/global/global_particle_manager.gd
-tabnew +setlocal\ bufhidden=wipe
-tabnew +setlocal\ bufhidden=wipe
+$argadd ~/godot/descent/scenes/weapon/generic.gd
 tabnew +setlocal\ bufhidden=wipe
 tabnew +setlocal\ bufhidden=wipe
 tabrewind
-edit godot/descent/scenes/entity/entity.gd
+edit scenes/player/player.gd
 argglobal
 setlocal fdm=manual
 setlocal fde=0
@@ -46,16 +34,16 @@ setlocal fdn=20
 setlocal fen
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 6 - ((5 * winheight(0) + 24) / 48)
+let s:l = 31 - ((15 * winheight(0) + 24) / 48)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 6
-normal! 013|
-lcd ~/godot/descent
+keepjumps 31
+normal! 0
 tabnext
-edit ~/godot/descent/scenes/weapon/generic_bullet.gd
+edit scenes/weapon/generic_bullet.gd
 argglobal
+balt scenes/player/player.gd
 setlocal fdm=manual
 setlocal fde=0
 setlocal fmr={{{,}}}
@@ -66,18 +54,16 @@ setlocal fdn=20
 setlocal fen
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 60 - ((41 * winheight(0) + 24) / 48)
+let s:l = 79 - ((38 * winheight(0) + 24) / 48)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 60
-normal! 063|
-lcd ~/godot/descent
+keepjumps 79
+normal! 0
 tabnext
-edit ~/godot/descent/global/global_particle_manager.gd
+edit ~/godot/descent/scenes/weapon/generic.gd
 argglobal
 1argu
-balt ~/godot/descent/scenes/player/player.gd
 setlocal fdm=manual
 setlocal fde=0
 setlocal fmr={{{,}}}
@@ -88,54 +74,13 @@ setlocal fdn=20
 setlocal fen
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 20 - ((19 * winheight(0) + 24) / 48)
+let s:l = 11 - ((10 * winheight(0) + 24) / 48)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 20
-normal! 058|
-lcd ~/godot/descent
-tabnext
-edit ~/godot/descent/scenes/weapon/object_pool.gd
-argglobal
-setlocal fdm=manual
-setlocal fde=0
-setlocal fmr={{{,}}}
-setlocal fdi=#
-setlocal fdl=0
-setlocal fml=1
-setlocal fdn=20
-setlocal fen
-silent! normal! zE
-let &fdl = &fdl
-let s:l = 28 - ((27 * winheight(0) + 24) / 48)
-if s:l < 1 | let s:l = 1 | endif
-keepjumps exe s:l
-normal! zt
-keepjumps 28
-normal! 075|
-lcd ~/godot/descent
-tabnext
-edit ~/godot/descent/scenes/player/player.gd
-argglobal
-setlocal fdm=manual
-setlocal fde=0
-setlocal fmr={{{,}}}
-setlocal fdi=#
-setlocal fdl=0
-setlocal fml=1
-setlocal fdn=20
-setlocal fen
-silent! normal! zE
-let &fdl = &fdl
-let s:l = 94 - ((47 * winheight(0) + 24) / 48)
-if s:l < 1 | let s:l = 1 | endif
-keepjumps exe s:l
-normal! zt
-keepjumps 94
-normal! 0
-lcd ~/godot/descent
-tabnext 3
+keepjumps 11
+normal! 047|
+tabnext 1
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0 && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'
   silent exe 'bwipe ' . s:wipebuf
 endif

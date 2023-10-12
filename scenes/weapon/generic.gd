@@ -1,13 +1,13 @@
 class_name GenericWeapon extends DamageSource
 
 var cooldown: float = 0.0
+var input_map: FilteredInputMap
 
 func _get_weapon_data() -> WeaponData:
 	return WeaponData.new()
 
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	pass # Replace with function body.
+func _set_input_map(map: FilteredInputMap) -> void:
+	input_map = map
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
