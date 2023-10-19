@@ -15,7 +15,7 @@ signal hit_entity
 @export_node_path("GPUParticles2D") var trail_particles: NodePath
 @export_group("Entity Collision")
 @export var damage = 0
-@export var damage_type = DamageSource.TYPE.Physical
+@export var damage_type = DamageSource.Type.PHYSICAL
 var velocity = Vector2.ZERO
 var hits = -1
 var bounces = -1

@@ -1,7 +1,7 @@
-[gd_scene load_steps=19 format=3 uid="uid://dd1x5hlymoupa"]
+[gd_scene load_steps=20 format=3 uid="uid://dd1x5hlymoupa"]
 
 [ext_resource type="Texture2D" uid="uid://bsmjg7ttix3ff" path="res://scenes/weapon/weapon_sprites/flare_bloom.png" id="1_ldqhm"]
-[ext_resource type="Script" path="res://scenes/weapon/object_pool.gd" id="2_iyc8h"]
+[ext_resource type="Script" path="res://global/classes/object_pool.gd" id="2_quflj"]
 [ext_resource type="Script" path="res://scenes/weapon/generic_bullet.gd" id="3_ygx54"]
 [ext_resource type="Texture2D" uid="uid://bn6evonnn01pu" path="res://global/particle_circle.png" id="4_yf5d7"]
 
@@ -31,20 +31,24 @@ var stance = STANCE.Holding :
 			tween.tween_property(sprite, \"rotation\", TAU * 0.25, duration)
 			tween.parallel().tween_property(sprite, \"position:x\", 11, duration)
 
-func _get_weapon_data() -> WeaponData:
-	return WeaponData.new().set_display_name(\"Silver Pistol\").set_ammo(3)
+func _swap_to():
+	animation_player.play(\"reload\")
+	cooldown = 0.4
+func _swap_from():
+	stance = STANCE.Holding
+
 
 func _process_weapon(aim: Vector2):
 	rotation = lerp_angle(rotation, aim.angle(), 0.5)
 	sprite.flip_v = aim.x < 0 if stance == STANCE.Holding else false
 	
 	if input_map.is_action_just_pressed(\"aim\") \\
-		or input_map.is_action_just_pressed(\"aim_up\") \\
-		or input_map.is_action_just_pressed(\"aim_down\"): stance = STANCE.Pointing
+			or input_map.is_action_just_pressed(\"aim_up\") \\
+			or input_map.is_action_just_pressed(\"aim_down\"): stance = STANCE.Pointing
 	elif not input_map.is_action_pressed(\"aim\") \\
-		and (input_map.is_action_just_released(\"aim\") \\
-		or input_map.is_action_just_released(\"aim_up\") \\
-		or input_map.is_action_just_released(\"aim_down\")): stance = STANCE.Holding
+			and (input_map.is_action_just_released(\"aim\") \\
+			or input_map.is_action_just_released(\"aim_up\") \\
+			or input_map.is_action_just_released(\"aim_down\")): stance = STANCE.Holding
 	
 	if input_map.is_action_pressed(\"attack\") && cooldown == 0:
 		animation_player.play(\"shoot\")
@@ -65,7 +69,7 @@ tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
 tracks/0/path = NodePath("Sprite:scale")
-tracks/0/interp = 1
+tracks/0/interp = 2
 tracks/0/loop_wrap = true
 tracks/0/keys = {
 "times": PackedFloat32Array(0),
@@ -90,14 +94,31 @@ tracks/0/keys = {
 "values": [Vector2(1, 1), Vector2(1.5, 0.5), Vector2(1, 1)]
 }
 
+[sub_resource type="Animation" id="Animation_ry14b"]
+resource_name = "reload"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite:scale")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(2, 1e-05), Vector2(0.75, 1.25), Vector2(1, 1)]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_s3nxs"]
 _data = {
 "RESET": SubResource("Animation_m02gm"),
+"reload": SubResource("Animation_ry14b"),
 "shoot": SubResource("Animation_yssa6")
 }
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_c8wxh"]
-radius = 4.0
+radius = 6.0
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_bk0pu"]
 blend_mode = 1
@@ -164,9 +185,10 @@ libraries = {
 }
 
 [node name="ObjectPool" type="Node" parent="."]
-script = ExtResource("2_iyc8h")
+script = ExtResource("2_quflj")
 
 [node name="BasicBullet" type="Area2D" parent="ObjectPool"]
+collision_layer = 4
 script = ExtResource("3_ygx54")
 bullet_gravity = 10
 bounce = 4

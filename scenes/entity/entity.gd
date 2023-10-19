@@ -9,7 +9,7 @@ func _process(_delta):
 	if invul >= 1:
 		invul -= 1
 
-func damage(source: DamageSource, hurt_points: int, type: DamageSource.TYPE):
+func damage(source: DamageSource, hurt_points: int, type: DamageSource.Type):
 	var args = modifiers.damage.modify({"source": source, "hurt_points": hurt_points, "type": type})
 	if invul == 0: hp -= args.hurt_points
 	return 0 if invul >= 1 else args.hurt_points

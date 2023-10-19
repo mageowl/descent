@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://bqe7wiilm7fwc"]
+
+[ext_resource type="Texture2D" uid="uid://daq8jnp7enjtt" path="res://scenes/weapon/weapon_sprites/iron_staff.png" id="1_p7qpm"]
+
+[sub_resource type="GDScript" id="GDScript_5cufx"]
+script/source = "extends GenericWeapon
+"
+
+[node name="IronStaff" type="Node2D"]
+script = SubResource("GDScript_5cufx")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_p7qpm")

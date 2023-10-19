@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://dfstd33w2374x"]
+
+[ext_resource type="Script" path="res://scenes/weapon/generic.gd" id="1_upina"]
+[ext_resource type="Texture2D" uid="uid://cpir3ejmpbe2o" path="res://scenes/weapon/weapon_sprites/basic_sword.png" id="2_sd688"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0lckl"]
+size = Vector2(16, 20)
+
+[node name="Sword" type="Area2D"]
+script = ExtResource("1_upina")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(-5, -1)
+texture = ExtResource("2_sd688")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(13, 0)
+shape = SubResource("RectangleShape2D_0lckl")
+debug_color = Color(1, 0.215686, 0.215686, 0.419608)

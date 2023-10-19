@@ -10,7 +10,7 @@ script/source = "extends Entity
 func _ready():
 	invul = -1
 
-func damage(damage_source: DamageSource, hurt_points: int, type: DamageSource.TYPE):
+func damage(damage_source: DamageSource, hurt_points: int, type: DamageSource.Type):
 	animation_player.stop()
 	animation_player.play(\"Hit\")
 	return super.damage(damage_source, hurt_points, type)
