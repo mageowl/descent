@@ -5,7 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://bn6evonnn01pu" path="res://global/particle_circle.png" id="4_radlf"]
 
 [sub_resource type="GDScript" id="GDScript_t7jlq"]
-script/source = "extends PathfindingEnemy
+script/source = "extends PlatformerEnemy
 
 @onready var animation_tree = $Sprite/AnimationTree
 @onready var players = get_tree().get_nodes_in_group(\"player\")
@@ -19,7 +19,6 @@ func _process(_d):
 			if position.distance_to(path[0]) < 10:
 				if has_los_to(target.position): pathfind_to(target.position)
 				path.pop_front()
-				print(\"new path\")
 		elif has_los_to(target.position):
 			pathfind_to(target.position)
 			path.pop_front()

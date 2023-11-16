@@ -57,6 +57,12 @@ func _draw():
 	
 	for point in nav_data.points:
 		draw_circle(point, 1, Color.RED)
+	
+	var ledges = []
+	ledges.append_array(nav_data.ledges.r)
+	ledges.append_array(nav_data.ledges.l)
+	for point in ledges:
+		draw_circle(point, 1, Color.BLUE)
 
 func query_agent(astar: AStar2D, query: PlatformerAgentQuery2D):
 	var index = 0

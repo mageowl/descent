@@ -13,19 +13,20 @@ if &shortmess =~ 'A'
 else
   set shortmess=aoO
 endif
-badd +78 global/classes/platformer_level_2d.gd
+badd +14 global/classes/platformer_level_2d.gd
 badd +1 global/classes/platformer_pathfinding_2d.gd
-badd +6 global/global_particle_manager.gd
-badd +64 scenes/player/player.gd
+badd +1 global/global_particle_manager.gd
+badd +79 scenes/player/player.gd
 badd +63 scenes/weapon/generic_bullet.gd
 badd +9 global/classes/platformer_agent_query_2d.gd
-badd +0 global/classes/pathfinding_enemy.gd
-badd +1 scenes/enemy/pathfinding_enemy.gd
-badd +0 scenes/enemy/enemy.gd
-badd +1 scenes/enemy/physics_enemy.gd
+badd +1 global/classes/pathfinding_enemy.gd
+badd +3 scenes/enemy/pathfinding_enemy.gd
+badd +1 scenes/enemy/enemy.gd
+badd +7 scenes/enemy/physics_enemy.gd
+badd +28 ~/.config/nvim/lua/plugins.lua
 argglobal
 %argdel
-$argadd scenes/enemy/enemy.gd
+$argadd global/global_particle_manager.gd
 tabnew +setlocal\ bufhidden=wipe
 tabnew +setlocal\ bufhidden=wipe
 tabrewind
@@ -42,12 +43,12 @@ setlocal fdn=20
 setlocal fen
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 110 - ((1 * winheight(0) + 14) / 28)
+let s:l = 8 - ((7 * winheight(0) + 14) / 28)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 110
-normal! 0
+keepjumps 8
+normal! 027|
 tabnext
 edit scenes/enemy/physics_enemy.gd
 argglobal
@@ -61,15 +62,17 @@ setlocal fdn=20
 setlocal fen
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 1 - ((0 * winheight(0) + 14) / 28)
+let s:l = 16 - ((15 * winheight(0) + 14) / 28)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 1
-normal! 037|
+keepjumps 16
+normal! 074|
 tabnext
 edit global/classes/platformer_level_2d.gd
 argglobal
+1argu
+balt global/global_particle_manager.gd
 setlocal fdm=manual
 setlocal fde=0
 setlocal fmr={{{,}}}
@@ -80,12 +83,12 @@ setlocal fdn=20
 setlocal fen
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 14 - ((13 * winheight(0) + 14) / 28)
+let s:l = 62 - ((21 * winheight(0) + 14) / 28)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 14
-normal! 023|
+keepjumps 62
+normal! 010|
 tabnext 3
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0 && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'
   silent exe 'bwipe ' . s:wipebuf
