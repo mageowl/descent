@@ -12,18 +12,19 @@ config_version=5
 
 config/name="Descent"
 config/tags=PackedStringArray("2d", "rougelike", "multiplayer")
-run/main_scene="res://scenes/test/test.tscn"
+run/main_scene="res://scenes/character_select/character_select.tscn"
 config/features=PackedStringArray("4.1", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
 
 GlobalParticleManager="*res://global/global_particle_manager.gd"
+InputController="*res://global/input_controller.gd"
 
 [display]
 
 window/size/viewport_width=320
-window/size/viewport_height=180
+window/size/viewport_height=176
 window/size/window_width_override=1280
 window/size/window_height_override=720
 window/stretch/mode="viewport"
@@ -96,6 +97,8 @@ aim={
 2d_physics/layer_2="Entities"
 2d_physics/layer_3="Damage Sources"
 2d_physics/layer_4="Action Triggers"
+2d_physics/layer_5="Navigation"
+2d_physics/layer_6="Players"
 
 [rendering]
 

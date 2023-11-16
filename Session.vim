@@ -13,41 +13,25 @@ if &shortmess =~ 'A'
 else
   set shortmess=aoO
 endif
-badd +1 Session.vim
-badd +1 scenes/weapon/weapon_drop.gd
-badd +31 scenes/player/player.gd
-badd +79 scenes/weapon/generic_bullet.gd
-badd +11 ~/godot/descent/scenes/weapon/generic.gd
-badd +2 ./scenes/weapon/weapon_data.gd
-badd +28 global/builders/weapon_builder.gd
+badd +78 global/classes/platformer_level_2d.gd
+badd +1 global/classes/platformer_pathfinding_2d.gd
+badd +6 global/global_particle_manager.gd
+badd +64 scenes/player/player.gd
+badd +63 scenes/weapon/generic_bullet.gd
+badd +9 global/classes/platformer_agent_query_2d.gd
+badd +0 global/classes/pathfinding_enemy.gd
+badd +1 scenes/enemy/pathfinding_enemy.gd
+badd +0 scenes/enemy/enemy.gd
+badd +1 scenes/enemy/physics_enemy.gd
 argglobal
 %argdel
-$argadd ~/godot/descent/scenes/weapon/generic.gd
-tabnew +setlocal\ bufhidden=wipe
-tabnew +setlocal\ bufhidden=wipe
+$argadd scenes/enemy/enemy.gd
 tabnew +setlocal\ bufhidden=wipe
 tabnew +setlocal\ bufhidden=wipe
 tabrewind
 edit scenes/player/player.gd
 argglobal
-balt scenes/weapon/weapon_drop.gd
-setlocal fdm=syntax
-setlocal fde=0
-setlocal fmr={{{,}}}
-setlocal fdi=#
-setlocal fdl=0
-setlocal fml=1
-setlocal fdn=20
-setlocal fen
-let s:l = 31 - ((18 * winheight(0) + 24) / 48)
-if s:l < 1 | let s:l = 1 | endif
-keepjumps exe s:l
-normal! zt
-keepjumps 31
-normal! 026|
-tabnext
-edit ~/godot/descent/scenes/weapon/generic.gd
-argglobal
+balt global/classes/platformer_level_2d.gd
 setlocal fdm=manual
 setlocal fde=0
 setlocal fmr={{{,}}}
@@ -58,14 +42,14 @@ setlocal fdn=20
 setlocal fen
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 5 - ((4 * winheight(0) + 24) / 48)
+let s:l = 110 - ((1 * winheight(0) + 14) / 28)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 5
+keepjumps 110
 normal! 0
 tabnext
-edit ./scenes/weapon/weapon_data.gd
+edit scenes/enemy/physics_enemy.gd
 argglobal
 setlocal fdm=manual
 setlocal fde=0
@@ -77,34 +61,14 @@ setlocal fdn=20
 setlocal fen
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 2 - ((1 * winheight(0) + 24) / 48)
+let s:l = 1 - ((0 * winheight(0) + 14) / 28)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 2
-normal! 0
+keepjumps 1
+normal! 037|
 tabnext
-edit global/builders/weapon_builder.gd
-argglobal
-balt ./scenes/weapon/weapon_data.gd
-setlocal fdm=manual
-setlocal fde=0
-setlocal fmr={{{,}}}
-setlocal fdi=#
-setlocal fdl=0
-setlocal fml=1
-setlocal fdn=20
-setlocal fen
-silent! normal! zE
-let &fdl = &fdl
-let s:l = 22 - ((15 * winheight(0) + 24) / 48)
-if s:l < 1 | let s:l = 1 | endif
-keepjumps exe s:l
-normal! zt
-keepjumps 22
-normal! 027|
-tabnext
-edit scenes/weapon/weapon_drop.gd
+edit global/classes/platformer_level_2d.gd
 argglobal
 setlocal fdm=manual
 setlocal fde=0
@@ -116,13 +80,13 @@ setlocal fdn=20
 setlocal fen
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 6 - ((5 * winheight(0) + 24) / 48)
+let s:l = 14 - ((13 * winheight(0) + 14) / 28)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 6
-normal! 0
-tabnext 1
+keepjumps 14
+normal! 023|
+tabnext 3
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0 && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'
   silent exe 'bwipe ' . s:wipebuf
 endif

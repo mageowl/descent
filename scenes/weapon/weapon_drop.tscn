@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://bipt1gyeqmyhk"]
 
-[ext_resource type="Texture2D" uid="uid://daq8jnp7enjtt" path="res://scenes/weapon/weapon_sprites/iron_staff.png" id="1_lmwgn"]
+[ext_resource type="Texture2D" uid="uid://daq8jnp7enjtt" path="res://scenes/weapon/sprites/iron_staff.png" id="1_lmwgn"]
 [ext_resource type="Script" path="res://scenes/weapon/weapon_drop.gd" id="1_xvydk"]
 
 [node name="WeaponDrop" type="RigidBody2D"]

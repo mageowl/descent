@@ -36,7 +36,6 @@ func spawn(position: Vector2 = Vector2.INF) -> Node:
 	if instance_array.size() > 0: instance = instance_array[0]
 	else: return null
 	
-	print("loading instance #" + str(instance.get_index()))
 	instance.process_mode = PROCESS_MODE_INHERIT
 	if instance is Node2D: 
 		instance.visible = true
@@ -47,7 +46,6 @@ func spawn(position: Vector2 = Vector2.INF) -> Node:
 
 func free_instance(index: int) -> void:
 	var instance: Node = get_children()[index]
-	print("unloading instance #" + str(index))
 	instance.process_mode = PROCESS_MODE_DISABLED
 	if instance is Node2D: instance.visible = false
 	if instance.has_method("disable"): instance.disable()

@@ -9,19 +9,9 @@ func _ready():
 	if controller > -1:
 		prefix = "p%d_" % controller
 	
-	var actions = InputMap.get_actions()
-	for action in actions:
-		if action.begins_with("ui_"): continue
-		
-		var events = InputMap.action_get_events(action)
-		var action_name = prefix + action
-		InputMap.add_action(action_name)
-		
-		for event in events:
-			var filtered_event: InputEvent = event.duplicate()
-			event.set_device(controller)
-			InputMap.action_add_event(action_name, filtered_event)
-
+	if not InputController.existing_filters.has(prefix):
+		prefix = ""
+		print("Could not create Filtered Input Map with prefix '%s'." % prefix)
 
 func is_action_pressed(action: StringName):
 	return Input.is_action_pressed(prefix + action)

@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="WeaponType" load_steps=4 format=3 uid="uid://b3372ruxrilmh"]
 
-[ext_resource type="Texture2D" uid="uid://cpir3ejmpbe2o" path="res://scenes/weapon/weapon_sprites/basic_sword.png" id="1_hlgj0"]
-[ext_resource type="PackedScene" uid="uid://dfstd33w2374x" path="res://scenes/weapon/weapon_objects/sword.tscn" id="2_oplwn"]
+[ext_resource type="Texture2D" uid="uid://cpir3ejmpbe2o" path="res://scenes/weapon/sprites/basic_sword.png" id="1_hlgj0"]
+[ext_resource type="PackedScene" uid="uid://dfstd33w2374x" path="res://scenes/weapon/objects/sword.tscn" id="2_oplwn"]
 [ext_resource type="Script" path="res://scenes/weapon/weapon_type.gd" id="3_222pi"]
 
 [resource]

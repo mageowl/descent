@@ -1,8 +1,10 @@
-[gd_scene load_steps=29 format=3 uid="uid://mpb3hkk48g22"]
+[gd_scene load_steps=44 format=3 uid="uid://mpb3hkk48g22"]
 
-[ext_resource type="Texture2D" uid="uid://pddkgxhnrskj" path="res://scenes/player/gator.png" id="1_bdxws"]
 [ext_resource type="Script" path="res://scenes/player/player.gd" id="1_cadx7"]
-[ext_resource type="AnimationLibrary" uid="uid://b6plggdiycbjf" path="res://scenes/player/gator.tres" id="3_05bc4"]
+[ext_resource type="Texture2D" uid="uid://bn6evonnn01pu" path="res://global/particle_circle.png" id="3_p4bsg"]
+[ext_resource type="Texture2D" uid="uid://cxv3w7a7wh4b4" path="res://scenes/player/sprites/john.png" id="3_xypvp"]
+[ext_resource type="AnimationLibrary" uid="uid://dv8h7a1yyjne0" path="res://scenes/player/animations/john.tres" id="4_ja1eb"]
+[ext_resource type="AnimationLibrary" uid="uid://p2my034atfgm" path="res://scenes/player/animations/generic.tres" id="5_vcr1k"]
 [ext_resource type="Script" path="res://global/classes/filtered_input_map.gd" id="5_ya4st"]
 [ext_resource type="Texture2D" uid="uid://b6wfm3sjx8s65" path="res://scenes/player/marker-1.png" id="6_3rr87"]
 
@@ -10,10 +12,10 @@
 radius = 12.0416
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_0ghho"]
-animation = &"TiltLeft"
+animation = &"generic/TiltLeft"
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_es3j0"]
-animation = &"TiltRight"
+animation = &"generic/TiltRight"
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_abfh8"]
 animation = &"RESET"
@@ -28,7 +30,10 @@ animation = &"Fall"
 animation = &"RESET"
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_6bsxq"]
-animation = &"PossibleAction"
+animation = &"generic/PossibleAction"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_6qkw6"]
+animation = &"Land"
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_84ebk"]
 animation = &"Idle"
@@ -43,7 +48,7 @@ filters = [".:scale"]
 
 [sub_resource type="AnimationNodeBlend2" id="AnimationNodeBlend2_2crd7"]
 filter_enabled = true
-filters = [".:rotation"]
+filters = [".:rotation", "WalkingParticles:scale"]
 
 [sub_resource type="AnimationNodeTransition" id="AnimationNodeTransition_c0ddm"]
 input_0/name = "air"
@@ -61,6 +66,10 @@ input_1/name = "walk"
 input_1/auto_advance = false
 input_1/reset = true
 
+[sub_resource type="AnimationNodeOneShot" id="AnimationNodeOneShot_5erdp"]
+filter_enabled = true
+filters = ["FallParticlesL:emitting", "FallParticlesR:emitting"]
+
 [sub_resource type="Curve" id="Curve_il6md"]
 _data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
 point_count = 2
@@ -76,10 +85,10 @@ input_1/auto_advance = false
 input_1/reset = true
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_3kn0a"]
-animation = &"Squash"
+animation = &"generic/Squash"
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_fglbe"]
-animation = &"Stretch"
+animation = &"generic/Stretch"
 
 [sub_resource type="AnimationNodeBlendSpace1D" id="AnimationNodeBlendSpace1D_qa5wg"]
 blend_point_0/node = SubResource("AnimationNodeAnimation_3kn0a")
@@ -105,9 +114,9 @@ input_2/auto_advance = false
 input_2/reset = true
 
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_q4br8"]
-graph_offset = Vector2(-822.5, 43.7785)
+graph_offset = Vector2(-755.527, -99.7111)
 nodes/Animation/node = SubResource("AnimationNodeAnimation_84ebk")
-nodes/Animation/position = Vector2(-300, -100)
+nodes/Animation/position = Vector2(-680, -106.667)
 "nodes/Animation 2/node" = SubResource("AnimationNodeAnimation_0ghho")
 "nodes/Animation 2/position" = Vector2(0, 200)
 "nodes/Animation 3/node" = SubResource("AnimationNodeAnimation_es3j0")
@@ -115,13 +124,15 @@ nodes/Animation/position = Vector2(-300, -100)
 "nodes/Animation 4/node" = SubResource("AnimationNodeAnimation_abfh8")
 "nodes/Animation 4/position" = Vector2(0, 420)
 "nodes/Animation 5/node" = SubResource("AnimationNodeAnimation_tm8t3")
-"nodes/Animation 5/position" = Vector2(-300, 10)
+"nodes/Animation 5/position" = Vector2(-680, 26.6667)
 "nodes/Animation 6/node" = SubResource("AnimationNodeAnimation_jjvr0")
-"nodes/Animation 6/position" = Vector2(0, -160)
+"nodes/Animation 6/position" = Vector2(-373.333, -160)
 "nodes/Animation 7/node" = SubResource("AnimationNodeAnimation_ilmu7")
 "nodes/Animation 7/position" = Vector2(413.333, 333.333)
 "nodes/Animation 8/node" = SubResource("AnimationNodeAnimation_6bsxq")
 "nodes/Animation 8/position" = Vector2(413.333, 453.333)
+"nodes/Animation 9/node" = SubResource("AnimationNodeAnimation_6qkw6")
+"nodes/Animation 9/position" = Vector2(-160, 120)
 nodes/blend_marker/node = SubResource("AnimationNodeBlend2_fgx0w")
 nodes/blend_marker/position = Vector2(786.667, 0)
 nodes/blend_squash/node = SubResource("AnimationNodeBlend2_pp31y")
@@ -129,9 +140,11 @@ nodes/blend_squash/position = Vector2(600, 0)
 nodes/blend_tilt/node = SubResource("AnimationNodeBlend2_2crd7")
 nodes/blend_tilt/position = Vector2(400, 0)
 nodes/in_air/node = SubResource("AnimationNodeTransition_c0ddm")
-nodes/in_air/position = Vector2(200, -100)
+nodes/in_air/position = Vector2(-173.333, -106.667)
 nodes/is_walking/node = SubResource("AnimationNodeTransition_38ebj")
-nodes/is_walking/position = Vector2(0, -20)
+nodes/is_walking/position = Vector2(-373.333, -26.6667)
+nodes/land/node = SubResource("AnimationNodeOneShot_5erdp")
+nodes/land/position = Vector2(66.6667, -93.3333)
 nodes/marker_state/node = SubResource("AnimationNodeTransition_y24td")
 nodes/marker_state/position = Vector2(613.333, 306.667)
 nodes/output/position = Vector2(986.667, 0)
@@ -139,13 +152,88 @@ nodes/squash/node = SubResource("AnimationNodeBlendSpace1D_qa5wg")
 nodes/squash/position = Vector2(400, 200)
 nodes/tilting/node = SubResource("AnimationNodeTransition_5pop4")
 nodes/tilting/position = Vector2(200, 200)
-node_connections = [&"output", 0, &"blend_marker", &"blend_marker", 0, &"blend_squash", &"blend_marker", 1, &"marker_state", &"blend_squash", 0, &"blend_tilt", &"blend_squash", 1, &"squash", &"blend_tilt", 0, &"in_air", &"blend_tilt", 1, &"tilting", &"in_air", 0, &"Animation 6", &"in_air", 1, &"is_walking", &"is_walking", 0, &"Animation", &"is_walking", 1, &"Animation 5", &"marker_state", 0, &"Animation 7", &"marker_state", 1, &"Animation 8", &"tilting", 0, &"Animation 2", &"tilting", 1, &"Animation 3", &"tilting", 2, &"Animation 4"]
+node_connections = [&"output", 0, &"blend_marker", &"blend_marker", 0, &"blend_squash", &"blend_marker", 1, &"marker_state", &"blend_squash", 0, &"blend_tilt", &"blend_squash", 1, &"squash", &"blend_tilt", 0, &"land", &"blend_tilt", 1, &"tilting", &"in_air", 0, &"Animation 6", &"in_air", 1, &"is_walking", &"is_walking", 0, &"Animation", &"is_walking", 1, &"Animation 5", &"land", 0, &"in_air", &"land", 1, &"Animation 9", &"marker_state", 0, &"Animation 7", &"marker_state", 1, &"Animation 8", &"tilting", 0, &"Animation 2", &"tilting", 1, &"Animation 3", &"tilting", 2, &"Animation 4"]
+
+[sub_resource type="Gradient" id="Gradient_pide4"]
+colors = PackedColorArray(1, 1, 1, 1, 0.72549, 0.772549, 0.788235, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_a8gdv"]
+gradient = SubResource("Gradient_pide4")
+
+[sub_resource type="Curve" id="Curve_toqsh"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.731219, 1), 0.0, 0.0, 0, 0, Vector2(0.984975, 0), -6.07921, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_1w2h1"]
+curve = SubResource("Curve_toqsh")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_ru2gm"]
+particle_flag_disable_z = true
+direction = Vector3(-1, -0.1, 0)
+spread = 5.0
+gravity = Vector3(0, -20, 0)
+initial_velocity_min = 10.0
+initial_velocity_max = 20.0
+orbit_velocity_min = 0.0
+orbit_velocity_max = 0.0
+scale_min = 0.1
+scale_max = 0.2
+scale_curve = SubResource("CurveTexture_1w2h1")
+color_ramp = SubResource("GradientTexture1D_a8gdv")
+
+[sub_resource type="Curve" id="Curve_28jje"]
+max_value = 100.0
+_data = [Vector2(0.717863, 0), 0.0, 0.0, 0, 0, Vector2(1, 42.3488), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_4coum"]
+curve = SubResource("Curve_28jje")
+
+[sub_resource type="Curve" id="Curve_04l4g"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.694491, 1), -1.75549, -1.75549, 0, 0, Vector2(1, 0), -5.6759, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_f2icr"]
+curve = SubResource("Curve_04l4g")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_xyx0t"]
+lifetime_randomness = 0.3
+particle_flag_disable_z = true
+spread = 0.0
+gravity = Vector3(0, -20, 0)
+initial_velocity_min = 20.0
+initial_velocity_max = 30.0
+orbit_velocity_min = 0.0
+orbit_velocity_max = 0.0
+damping_min = 15.0
+damping_max = 15.0
+damping_curve = SubResource("CurveTexture_4coum")
+scale_min = 0.1
+scale_max = 0.2
+scale_curve = SubResource("CurveTexture_f2icr")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_yw28k"]
+lifetime_randomness = 0.3
+particle_flag_disable_z = true
+direction = Vector3(-1, 0, 0)
+spread = 0.0
+gravity = Vector3(0, -20, 0)
+initial_velocity_min = 20.0
+initial_velocity_max = 30.0
+orbit_velocity_min = 0.0
+orbit_velocity_max = 0.0
+damping_min = 15.0
+damping_max = 15.0
+damping_curve = SubResource("CurveTexture_4coum")
+scale_min = 0.1
+scale_max = 0.2
+scale_curve = SubResource("CurveTexture_f2icr")
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_qchld"]
 radius = 3.0
 height = 11.0
 
-[node name="Player" type="CharacterBody2D"]
+[node name="Player" type="CharacterBody2D" groups=["player"]]
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_cadx7")
@@ -164,14 +252,15 @@ debug_color = Color(0.415686, 0.717647, 0.435294, 0.419608)
 
 [node name="Sprite" type="Sprite2D" parent="."]
 position = Vector2(0, 8)
-texture = ExtResource("1_bdxws")
+texture = ExtResource("3_xypvp")
 offset = Vector2(0, -8)
-region_enabled = true
-region_rect = Rect2(32, 0, 16, 16)
+hframes = 8
+region_rect = Rect2(96, 0, 16, 16)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Sprite"]
 libraries = {
-"": ExtResource("3_05bc4")
+"": ExtResource("4_ja1eb"),
+"generic": ExtResource("5_vcr1k")
 }
 
 [node name="AnimationTree" type="AnimationTree" parent="Sprite"]
@@ -187,6 +276,9 @@ parameters/in_air/current_index = 1
 parameters/is_walking/current_state = "static"
 parameters/is_walking/transition_request = ""
 parameters/is_walking/current_index = 0
+parameters/land/active = false
+parameters/land/internal_active = false
+parameters/land/request = 0
 parameters/marker_state/current_state = "static"
 parameters/marker_state/transition_request = ""
 parameters/marker_state/current_index = 0
@@ -194,6 +286,32 @@ parameters/squash/blend_position = 0.0
 parameters/tilting/current_state = "static"
 parameters/tilting/transition_request = ""
 parameters/tilting/current_index = 2
+
+[node name="WalkingParticles" type="GPUParticles2D" parent="Sprite"]
+scale = Vector2(1e-05, 1e-05)
+emitting = false
+amount = 4
+process_material = SubResource("ParticleProcessMaterial_ru2gm")
+texture = ExtResource("3_p4bsg")
+lifetime = 0.3
+
+[node name="FallParticlesR" type="GPUParticles2D" parent="Sprite"]
+emitting = false
+amount = 5
+process_material = SubResource("ParticleProcessMaterial_xyx0t")
+texture = ExtResource("3_p4bsg")
+lifetime = 0.2
+one_shot = true
+explosiveness = 0.75
+
+[node name="FallParticlesL" type="GPUParticles2D" parent="Sprite"]
+emitting = false
+amount = 5
+process_material = SubResource("ParticleProcessMaterial_yw28k")
+texture = ExtResource("3_p4bsg")
+lifetime = 0.2
+one_shot = true
+explosiveness = 0.75
 
 [node name="Marker" type="Sprite2D" parent="."]
 visibility_layer = 2

@@ -1,0 +1,228 @@
+[gd_scene load_steps=20 format=3 uid="uid://dd1x5hlymoupa"]
+
+[ext_resource type="Texture2D" uid="uid://bsmjg7ttix3ff" path="res://scenes/weapon/sprites/flare_bloom.png" id="1_ldqhm"]
+[ext_resource type="Script" path="res://global/classes/object_pool.gd" id="2_quflj"]
+[ext_resource type="Script" path="res://scenes/weapon/generic_bullet.gd" id="3_ygx54"]
+[ext_resource type="Texture2D" uid="uid://bn6evonnn01pu" path="res://global/particle_circle.png" id="4_yf5d7"]
+
+[sub_resource type="GDScript" id="GDScript_vqfff"]
+script/source = "extends GenericWeapon
+
+enum STANCE {
+	Pointing,
+	Holding,
+	Shooting
+}
+
+@onready var sprite = $Sprite
+@onready var animation_player = $AnimationPlayer
+@onready var object_pool = $ObjectPool
+@onready var nose = $Nose
+var stance = STANCE.Holding :
+	set(v):
+		stance = v
+		var tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+		var duration = 0.25
+		
+		if v == STANCE.Holding:
+			tween.tween_property(sprite, \"rotation\", 0, duration)
+			tween.parallel().tween_property(sprite, \"position:x\", -11, duration)
+		elif v == STANCE.Pointing or v == STANCE.Shooting:
+			tween.tween_property(sprite, \"rotation\", TAU * 0.25, duration)
+			tween.parallel().tween_property(sprite, \"position:x\", 11, duration)
+
+func _swap_to():
+	animation_player.play(\"reload\")
+	cooldown = 0.4
+func _swap_from():
+	stance = STANCE.Holding
+
+
+func _process_weapon(aim: Vector2):
+	rotation = lerp_angle(rotation, aim.angle(), 0.5)
+	sprite.flip_v = aim.x < 0 if stance == STANCE.Holding else false
+	
+	if input_map.is_action_just_pressed(\"aim\") \\
+			or input_map.is_action_just_pressed(\"aim_up\") \\
+			or input_map.is_action_just_pressed(\"aim_down\"): stance = STANCE.Pointing
+	elif not input_map.is_action_pressed(\"aim\") \\
+			and (input_map.is_action_just_released(\"aim\") \\
+			or input_map.is_action_just_released(\"aim_up\") \\
+			or input_map.is_action_just_released(\"aim_down\")): stance = STANCE.Holding
+	
+	if input_map.is_action_pressed(\"attack\") && cooldown == 0:
+		animation_player.play(\"shoot\")
+		cooldown = 0.4
+		stance = STANCE.Shooting
+		
+		var bullet: BasicBullet = object_pool.spawn(nose.global_position)
+		bullet.velocity = aim.normalized() + Vector2(0, -1)
+	if cooldown == 0 and stance == STANCE.Shooting \\
+		and not (input_map.is_action_pressed(\"aim\") \\
+		or input_map.is_action_pressed(\"aim_up\") \\
+		or input_map.is_action_pressed(\"aim_down\")): stance = STANCE.Holding
+"
+
+[sub_resource type="Animation" id="Animation_m02gm"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite:scale")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_ry14b"]
+resource_name = "reload"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite:scale")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(2, 1e-05), Vector2(0.75, 1.25), Vector2(1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_yssa6"]
+resource_name = "shoot"
+length = 0.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.4),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(1.5, 0.5), Vector2(1, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_s3nxs"]
+_data = {
+"RESET": SubResource("Animation_m02gm"),
+"reload": SubResource("Animation_ry14b"),
+"shoot": SubResource("Animation_yssa6")
+}
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_c8wxh"]
+radius = 6.0
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_bk0pu"]
+blend_mode = 1
+
+[sub_resource type="Curve" id="Curve_0774p"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -1.12862, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_sryqy"]
+curve = SubResource("Curve_0774p")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_qnylg"]
+particle_flag_disable_z = true
+direction = Vector3(-1, 0, 0)
+spread = 15.0
+gravity = Vector3(0, 0, 0)
+initial_velocity_min = 15.0
+initial_velocity_max = 30.0
+orbit_velocity_min = 0.0
+orbit_velocity_max = 0.0
+scale_min = 0.5
+scale_max = 0.7
+scale_curve = SubResource("CurveTexture_sryqy")
+color = Color(0.870588, 0.396078, 0.309804, 1)
+
+[sub_resource type="Gradient" id="Gradient_j36wp"]
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_c6fcq"]
+gradient = SubResource("Gradient_j36wp")
+
+[sub_resource type="Curve" id="Curve_jqk0o"]
+_data = [Vector2(0.535714, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -1.12862, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_o7jyr"]
+curve = SubResource("Curve_jqk0o")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_10icu"]
+particle_flag_disable_z = true
+direction = Vector3(0, 0, 0)
+spread = 180.0
+gravity = Vector3(0, 0, 0)
+initial_velocity_min = 30.0
+initial_velocity_max = 60.0
+orbit_velocity_min = 0.0
+orbit_velocity_max = 0.0
+scale_min = 0.5
+scale_max = 0.7
+scale_curve = SubResource("CurveTexture_o7jyr")
+color = Color(0.870588, 0.396078, 0.309804, 1)
+color_ramp = SubResource("GradientTexture1D_c6fcq")
+
+[node name="FlareBloom" type="Node2D"]
+script = SubResource("GDScript_vqfff")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+position = Vector2(-11, 0)
+texture = ExtResource("1_ldqhm")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_s3nxs")
+}
+
+[node name="ObjectPool" type="Node" parent="."]
+script = ExtResource("2_quflj")
+
+[node name="BasicBullet" type="Area2D" parent="ObjectPool"]
+collision_layer = 4
+script = ExtResource("3_ygx54")
+bullet_gravity = 10
+bounce = 4
+bounce_damping = 0.9
+hit_particles = NodePath("HitParticles")
+trail_particles = NodePath("Trail")
+damage = 10
+damage_type = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObjectPool/BasicBullet"]
+shape = SubResource("CircleShape2D_c8wxh")
+
+[node name="Trail" type="GPUParticles2D" parent="ObjectPool/BasicBullet"]
+material = SubResource("CanvasItemMaterial_bk0pu")
+amount = 40
+process_material = SubResource("ParticleProcessMaterial_qnylg")
+texture = ExtResource("4_yf5d7")
+lifetime = 0.25
+
+[node name="HitParticles" type="GPUParticles2D" parent="ObjectPool/BasicBullet"]
+material = SubResource("CanvasItemMaterial_bk0pu")
+emitting = false
+amount = 20
+process_material = SubResource("ParticleProcessMaterial_10icu")
+texture = ExtResource("4_yf5d7")
+lifetime = 0.25
+one_shot = true
+explosiveness = 1.0
+
+[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="ObjectPool/BasicBullet"]
+position = Vector2(0, 4.76837e-07)
+scale = Vector2(0.2, 0.2)
+
+[node name="Nose" type="Marker2D" parent="."]
+position = Vector2(14, 0)
+
+[connection signal="screen_exited" from="ObjectPool/BasicBullet/VisibleOnScreenNotifier2D" to="ObjectPool/BasicBullet" method="destroy"]

@@ -1,0 +1,286 @@
+[gd_scene load_steps=25 format=3 uid="uid://dj1t1y67pb7a0"]
+
+[ext_resource type="AnimationLibrary" uid="uid://p2my034atfgm" path="res://scenes/player/animations/generic.tres" id="2_skcit"]
+[ext_resource type="Texture2D" uid="uid://302uwxn7inah" path="res://scenes/enemy/sprites/skeleton.png" id="2_y0d4k"]
+[ext_resource type="Texture2D" uid="uid://bn6evonnn01pu" path="res://global/particle_circle.png" id="4_radlf"]
+
+[sub_resource type="GDScript" id="GDScript_t7jlq"]
+script/source = "extends PathfindingEnemy
+
+@onready var animation_tree = $Sprite/AnimationTree
+@onready var players = get_tree().get_nodes_in_group(\"player\")
+
+func _process(_d):
+	if target:
+		if path.size() > 0:
+			velocity = (path[0] - position).normalized() * 70
+			move_and_slide()
+			
+			if position.distance_to(path[0]) < 10:
+				if has_los_to(target.position): pathfind_to(target.position)
+				path.pop_front()
+				print(\"new path\")
+		elif has_los_to(target.position):
+			pathfind_to(target.position)
+			path.pop_front()
+		else:
+			target = null
+	else:
+		for player in players:
+			if has_los_to(player.position):
+				target = player
+				pathfind_to(player.position)
+
+"
+
+[sub_resource type="Animation" id="Animation_y3iq8"]
+resource_name = "Idle"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("WalkingParticles:emitting")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+
+[sub_resource type="Animation" id="Animation_3uutx"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath(".:scale")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("WalkingParticles:emitting")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+
+[sub_resource type="Animation" id="Animation_01m4m"]
+resource_name = "Walk"
+length = 0.5
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [1, 2, 3, 4, 5]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("WalkingParticles:emitting")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_gn4qs"]
+_data = {
+"Idle": SubResource("Animation_y3iq8"),
+"RESET": SubResource("Animation_3uutx"),
+"Walk": SubResource("Animation_01m4m")
+}
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_xlh03"]
+animation = &"Walk"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_tr3hh"]
+animation = &"generic/TiltLeft"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_2hdj5"]
+animation = &"RESET"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_6pxrg"]
+animation = &"generic/TiltRight"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_0pkbw"]
+animation = &"Idle"
+
+[sub_resource type="AnimationNodeBlend2" id="AnimationNodeBlend2_cwtk7"]
+filter_enabled = true
+filters = [".:rotation", ".:scale", "WalkingParticles:scale"]
+
+[sub_resource type="AnimationNodeTransition" id="AnimationNodeTransition_rgh2l"]
+input_0/name = "idle"
+input_0/auto_advance = false
+input_0/reset = true
+input_1/name = "moving"
+input_1/auto_advance = false
+input_1/reset = true
+
+[sub_resource type="Curve" id="Curve_7sgrx"]
+_data = [Vector2(0.00595837, 0), 0.0, 0.491916, 0, 0, Vector2(1, 1), 2.35121, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="AnimationNodeTransition" id="AnimationNodeTransition_takvw"]
+xfade_time = 0.2
+xfade_curve = SubResource("Curve_7sgrx")
+input_0/name = "left"
+input_0/auto_advance = false
+input_0/reset = true
+input_1/name = "static"
+input_1/auto_advance = false
+input_1/reset = true
+input_2/name = "right"
+input_2/auto_advance = false
+input_2/reset = true
+
+[sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_x636r"]
+graph_offset = Vector2(-1175.35, 104.406)
+nodes/Animation/node = SubResource("AnimationNodeAnimation_0pkbw")
+nodes/Animation/position = Vector2(-386.667, 146.667)
+"nodes/Animation 2/node" = SubResource("AnimationNodeAnimation_xlh03")
+"nodes/Animation 2/position" = Vector2(-386.667, 266.667)
+"nodes/Animation 3/node" = SubResource("AnimationNodeAnimation_tr3hh")
+"nodes/Animation 3/position" = Vector2(-360, 386.667)
+"nodes/Animation 4/node" = SubResource("AnimationNodeAnimation_2hdj5")
+"nodes/Animation 4/position" = Vector2(-360, 506.667)
+"nodes/Animation 5/node" = SubResource("AnimationNodeAnimation_6pxrg")
+"nodes/Animation 5/position" = Vector2(-360, 613.333)
+nodes/BlendA/node = SubResource("AnimationNodeBlend2_cwtk7")
+nodes/BlendA/position = Vector2(80, 146.667)
+nodes/movement/node = SubResource("AnimationNodeTransition_rgh2l")
+nodes/movement/position = Vector2(-133.333, 146.667)
+nodes/tilt/node = SubResource("AnimationNodeTransition_takvw")
+nodes/tilt/position = Vector2(-133.333, 386.667)
+node_connections = [&"output", 0, &"BlendA", &"BlendA", 0, &"movement", &"BlendA", 1, &"tilt", &"movement", 0, &"Animation", &"movement", 1, &"Animation 2", &"tilt", 0, &"Animation 3", &"tilt", 1, &"Animation 4", &"tilt", 2, &"Animation 5"]
+
+[sub_resource type="Gradient" id="Gradient_uba0u"]
+colors = PackedColorArray(1, 1, 1, 1, 0.72549, 0.772549, 0.788235, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_w11pb"]
+gradient = SubResource("Gradient_uba0u")
+
+[sub_resource type="Curve" id="Curve_7ug3p"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.731219, 1), 0.0, 0.0, 0, 0, Vector2(0.984975, 0), -6.07921, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_tyii5"]
+curve = SubResource("Curve_7ug3p")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_dxjoh"]
+particle_flag_disable_z = true
+direction = Vector3(-1, -0.1, 0)
+spread = 5.0
+gravity = Vector3(0, -20, 0)
+initial_velocity_min = 10.0
+initial_velocity_max = 20.0
+orbit_velocity_min = 0.0
+orbit_velocity_max = 0.0
+scale_min = 0.1
+scale_max = 0.2
+scale_curve = SubResource("CurveTexture_tyii5")
+color_ramp = SubResource("GradientTexture1D_w11pb")
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_4ho55"]
+radius = 3.0
+height = 11.0
+
+[node name="Skeleton" type="CharacterBody2D" groups=["enemy"]]
+collision_layer = 2
+collision_mask = 5
+script = SubResource("GDScript_t7jlq")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+position = Vector2(0, 7)
+texture = ExtResource("2_y0d4k")
+offset = Vector2(0, -8)
+hframes = 6
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Sprite"]
+libraries = {
+"": SubResource("AnimationLibrary_gn4qs"),
+"generic": ExtResource("2_skcit")
+}
+
+[node name="AnimationTree" type="AnimationTree" parent="Sprite" groups=["enemy"]]
+tree_root = SubResource("AnimationNodeBlendTree_x636r")
+anim_player = NodePath("../AnimationPlayer")
+active = true
+parameters/BlendA/blend_amount = 1.0
+parameters/movement/current_state = "idle"
+parameters/movement/transition_request = ""
+parameters/movement/current_index = 0
+parameters/tilt/current_state = "static"
+parameters/tilt/transition_request = ""
+parameters/tilt/current_index = 1
+
+[node name="WalkingParticles" type="GPUParticles2D" parent="Sprite"]
+scale = Vector2(1e-05, 1e-05)
+emitting = false
+amount = 4
+process_material = SubResource("ParticleProcessMaterial_dxjoh")
+texture = ExtResource("4_radlf")
+lifetime = 0.3
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 1)
+shape = SubResource("CapsuleShape2D_4ho55")
+
+[node name="Marker" type="Node2D" parent="."]

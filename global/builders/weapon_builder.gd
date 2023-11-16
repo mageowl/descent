@@ -26,13 +26,13 @@ func _on_finished():
 	
 	var packed_scene = PackedScene.new()
 	packed_scene.pack(scene)
-	if data.scene_type.value != "None": ResourceSaver.save(packed_scene, "res://scenes/weapon/weapon_objects/" + data.name.value.to_snake_case() + ".tscn", ResourceSaver.FLAG_CHANGE_PATH)
+	if data.scene_type.value != "None": ResourceSaver.save(packed_scene, "res://scenes/weapon/objects/" + data.name.value.to_snake_case() + ".tscn", ResourceSaver.FLAG_CHANGE_PATH)
 	
 	var weapon_type = WeaponType.new()
 	weapon_type.name = data.name.value
 	weapon_type.gui_texture = data.texture.texture
 	weapon_type.collision_shape = data.collision_shape.polygon
-	weapon_type.object = packed_scene if data.scene_type.value != "None" else load("res://scenes/weapon/weapon_objects/" + data.name.value.to_snake_case() + ".tscn")
+	weapon_type.object = packed_scene if data.scene_type.value != "None" else load("res://scenes/weapon/objects/" + data.name.value.to_snake_case() + ".tscn")
 	
 	ResourceSaver.save(weapon_type, "res://scenes/weapon/weapon_types/" + data.name.value.to_snake_case() + ".tres", ResourceSaver.FLAG_CHANGE_PATH)
 	
