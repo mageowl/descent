@@ -12,5 +12,6 @@ enum Type {
 
 enum Team { PLAYER, ENEMY }
 
-var modifiers = ModifierArray.new(self, [])
+var modifiers = ModifierArray.new(self, ["deal_damage"])
 var team = Team.ENEMY
+var parent: Entity

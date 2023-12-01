@@ -29,7 +29,8 @@ const SKINS = [
 @onready var input_map: FilteredInputMap = $InputMap
 @onready var pickup_radius = $PickupRadius
 @onready var marker = $Marker
-var falling = 0
+@onready var footsteps_noises = $Sounds/Footsteps
+var fall_time = 0
 var impact = 0
 var jump_input = 0
 var short_jump = false
@@ -41,12 +42,12 @@ var current_weapon
 var weapon_index: int = 0
 
 func _ready():
+	super()
 	input_map.controller = player_index
 	set_name.call_deferred(StringName("Player" + str(player_index)))
 	
 	for weapon in weapon_container.get_children():
 		weapon._set_input_map(input_map)
-	print(Input.get_connected_joypads())
 
 func animate(direction):
 	var set_p = func (property, value): 
@@ -72,14 +73,19 @@ func animate(direction):
 		set_p.call("squash/blend_position", squash_factor)
 		
 		impact = velocity.y * 1.6
+	
+	if $Sprite/WalkingParticles.emitting: 
+		if not footsteps_noises.playing: footsteps_noises.playing = true
+	elif footsteps_noises.playing:
+		footsteps_noises.playing = false
 
 func movement(delta) -> int:
 	# Add the gravity.
 	if not is_on_floor():
 		velocity.y += (GRAVITY if velocity.y >= 0 else JUMP_GRAVITY) * delta
-		falling += 1
+		fall_time += 1
 	else:
-		falling = 0
+		fall_time = 0
 		short_jump = false
 		short_jumped = false
 
@@ -89,15 +95,15 @@ func movement(delta) -> int:
 	elif jump_input > 0:
 		jump_input -= 1
 	
-	if jump_input > 0 and falling < CYOTE_TIME:
+	if jump_input > 0 and fall_time < CYOTE_TIME:
 		velocity.y = -JUMP_VELOCITY
-		falling = CYOTE_TIME
+		fall_time = CYOTE_TIME
 	
 	if input_map.is_action_just_released("jump"):
 		if velocity.y < 0 and not short_jumped:
 			short_jump = true
 	
-	if falling >= MIN_JUMP_SPAN and short_jump and not short_jumped:
+	if fall_time >= MIN_JUMP_SPAN and short_jump and not short_jumped:
 		velocity.y = -MIN_JUMP_VELOCITY
 		short_jumped = true
 	
@@ -118,7 +124,7 @@ func equip_weapon(weapon: WeaponType):
 		current_weapon.queue_free()
 	
 	var instance: GenericWeapon = weapon.object.instantiate()
-	instance._set_input_map(input_map)
+	instance._set_data(input_map, team)
 	weapon_container.add_child(instance)
 	
 	weapons[weapon_index] = weapon
@@ -140,9 +146,12 @@ func _physics_process(delta):
 	animate(direction)
 	
 	if current_weapon != null:
-		var aim = Util.deadzone2(input_map.get_vector("left", "right", "aim_up", "aim_down")).normalized().snapped(Vector2(1, 1))
-		if aim == Vector2.ZERO: aim.x = int(sprite.flip_h) * -2 + 1
+		var aim = Util.deadzone2(input_map.get_vector("left", "right", "aim_up", "aim_down")).normalized()
+		if not input_map.is_action_pressed("aim"): aim = aim.snapped(Vector2(1, 1))
 		if aim.y > 0 and not input_map.is_action_pressed("aim"): aim.x = 0
+		if InputController.using_keyboard: aim = position.direction_to(get_viewport().get_mouse_position())
+		
+		if aim == Vector2.ZERO: aim.x = int(sprite.flip_h) * -2 + 1
 		current_weapon._process_weapon(aim)
 	
 	if input_map.is_action_just_pressed("action") and current_action_callback != Util.PASS:

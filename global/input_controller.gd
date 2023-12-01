@@ -1,12 +1,16 @@
 extends Node
 
 var existing_filters: Array[String] = [""]
+var using_keyboard = false
 
 func _ready():
 	add_controller_filter(0)
 	add_controller_filter(1)
 	add_controller_filter(2)
 	add_controller_filter(3)
+	
+	if Input.get_connected_joypads().size() == 0:
+		using_keyboard = true
 
 func add_controller_filter(controller_id):
 	var prefix = "p%d_" % controller_id

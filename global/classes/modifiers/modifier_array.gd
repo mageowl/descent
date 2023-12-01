@@ -5,15 +5,16 @@ var mod_points: Dictionary = {}
 var mod_target: Object
 
 func _get(property):
+	print("prop of ", mod_target.name, " is ", mod_points)
 	if mod_points.has(property):
 		return mod_points[property]
 
 func _init(object: Object, modified_methods: Array):
 	mod_target = object
+	print("mod target ", object, " requested ", modified_methods)
 	
-	for method in object.get_method_list():
-		if modified_methods.has(method.name):
-			mod_points[method.name] = ModPoint.new(mod_target, method)
+	for method in modified_methods:
+		mod_points[method] = ModPoint.new(mod_target, method)
 
 func apply(modifier: Modifier):
 	modifier.target = mod_target
@@ -27,13 +28,11 @@ class ModPoint:
 	signal trigger(args: Dictionary)
 	
 	var mod_target
-	var method: Dictionary
 	var name
 	
-	func _init(object: Object, method_data: Dictionary):
+	func _init(object: Object, method: String):
 		mod_target = object
-		method = method_data
-		name = method_data.name
+		name = method
 	
 	func modify(args: Dictionary):
 		var dict = args.duplicate(false)

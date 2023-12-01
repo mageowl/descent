@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://dj1t1y67pb7a0"]
+[gd_scene load_steps=34 format=3 uid="uid://dj1t1y67pb7a0"]
 
 [ext_resource type="AnimationLibrary" uid="uid://p2my034atfgm" path="res://scenes/player/animations/generic.tres" id="2_skcit"]
 [ext_resource type="Texture2D" uid="uid://302uwxn7inah" path="res://scenes/enemy/sprites/skeleton.png" id="2_y0d4k"]
@@ -8,18 +8,33 @@
 script/source = "extends PlatformerEnemy
 
 @onready var animation_tree = $Sprite/AnimationTree
+@onready var sprite = $Sprite
 @onready var players = get_tree().get_nodes_in_group(\"player\")
+
+func animate():
+	var set_p = func (property, value):
+		animation_tree[\"parameters/\" + property] = value
+	var direction = trigger.direction
+	
+	if direction != 0: sprite.flip_h = direction < 0
+	set_p.call(\"is_walking/transition_request\", \"walk\" if direction != 0 else \"static\")
+	set_p.call(\"tilting/transition_request\", [\"left\", \"static\", \"right\"][round(direction) + 1])
+	set_p.call(\"in_air/transition_request\", \"ground\" if is_on_floor() else \"air\")
 
 func _process(_d):
 	if target:
 		if path.size() > 0:
-			velocity = (path[0] - position).normalized() * 70
-			move_and_slide()
+			var distance = path[0] - position
+			trigger.direction = sign(distance.x)
+			trigger.jump = distance.y < 0
 			
-			if position.distance_to(path[0]) < 10:
-				if has_los_to(target.position): pathfind_to(target.position)
-				path.pop_front()
+			if has_los_to(target.position): 
+				target_position = target.position
+			
+			pathfind_to(target_position)
+			path.pop_front()
 		elif has_los_to(target.position):
+			target_position = target.position
 			pathfind_to(target.position)
 			path.pop_front()
 		else:
@@ -29,8 +44,38 @@ func _process(_d):
 			if has_los_to(player.position):
 				target = player
 				pathfind_to(player.position)
+	
+	animate()
 
 "
+
+[sub_resource type="Animation" id="Animation_p0x7m"]
+resource_name = "Fall"
+length = 0.01
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [2]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("WalkingParticles:emitting")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
 
 [sub_resource type="Animation" id="Animation_y3iq8"]
 resource_name = "Idle"
@@ -141,6 +186,7 @@ tracks/1/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_gn4qs"]
 _data = {
+"Fall": SubResource("Animation_p0x7m"),
 "Idle": SubResource("Animation_y3iq8"),
 "RESET": SubResource("Animation_3uutx"),
 "Walk": SubResource("Animation_01m4m")
@@ -158,6 +204,9 @@ animation = &"RESET"
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_6pxrg"]
 animation = &"generic/TiltRight"
 
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_a8hx4"]
+animation = &"Fall"
+
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_0pkbw"]
 animation = &"Idle"
 
@@ -165,11 +214,19 @@ animation = &"Idle"
 filter_enabled = true
 filters = [".:rotation", ".:scale", "WalkingParticles:scale"]
 
-[sub_resource type="AnimationNodeTransition" id="AnimationNodeTransition_rgh2l"]
-input_0/name = "idle"
+[sub_resource type="AnimationNodeTransition" id="AnimationNodeTransition_le6o4"]
+input_0/name = "ground"
 input_0/auto_advance = false
 input_0/reset = true
-input_1/name = "moving"
+input_1/name = "air"
+input_1/auto_advance = false
+input_1/reset = true
+
+[sub_resource type="AnimationNodeTransition" id="AnimationNodeTransition_rgh2l"]
+input_0/name = "static"
+input_0/auto_advance = false
+input_0/reset = true
+input_1/name = "walk"
 input_1/auto_advance = false
 input_1/reset = true
 
@@ -191,24 +248,28 @@ input_2/auto_advance = false
 input_2/reset = true
 
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_x636r"]
-graph_offset = Vector2(-1175.35, 104.406)
+graph_offset = Vector2(-1209.43, 7.00289)
 nodes/Animation/node = SubResource("AnimationNodeAnimation_0pkbw")
-nodes/Animation/position = Vector2(-386.667, 146.667)
+nodes/Animation/position = Vector2(-626.667, 40)
 "nodes/Animation 2/node" = SubResource("AnimationNodeAnimation_xlh03")
-"nodes/Animation 2/position" = Vector2(-386.667, 266.667)
+"nodes/Animation 2/position" = Vector2(-626.667, 160)
 "nodes/Animation 3/node" = SubResource("AnimationNodeAnimation_tr3hh")
 "nodes/Animation 3/position" = Vector2(-360, 386.667)
 "nodes/Animation 4/node" = SubResource("AnimationNodeAnimation_2hdj5")
 "nodes/Animation 4/position" = Vector2(-360, 506.667)
 "nodes/Animation 5/node" = SubResource("AnimationNodeAnimation_6pxrg")
 "nodes/Animation 5/position" = Vector2(-360, 613.333)
-nodes/BlendA/node = SubResource("AnimationNodeBlend2_cwtk7")
-nodes/BlendA/position = Vector2(80, 146.667)
-nodes/movement/node = SubResource("AnimationNodeTransition_rgh2l")
-nodes/movement/position = Vector2(-133.333, 146.667)
-nodes/tilt/node = SubResource("AnimationNodeTransition_takvw")
-nodes/tilt/position = Vector2(-133.333, 386.667)
-node_connections = [&"output", 0, &"BlendA", &"BlendA", 0, &"movement", &"BlendA", 1, &"tilt", &"movement", 0, &"Animation", &"movement", 1, &"Animation 2", &"tilt", 0, &"Animation 3", &"tilt", 1, &"Animation 4", &"tilt", 2, &"Animation 5"]
+"nodes/Animation 6/node" = SubResource("AnimationNodeAnimation_a8hx4")
+"nodes/Animation 6/position" = Vector2(-400, 240)
+nodes/blend_tilt/node = SubResource("AnimationNodeBlend2_cwtk7")
+nodes/blend_tilt/position = Vector2(80, 146.667)
+nodes/in_air/node = SubResource("AnimationNodeTransition_le6o4")
+nodes/in_air/position = Vector2(-200, 133.333)
+nodes/is_walking/node = SubResource("AnimationNodeTransition_rgh2l")
+nodes/is_walking/position = Vector2(-373.333, 40)
+nodes/tilting/node = SubResource("AnimationNodeTransition_takvw")
+nodes/tilting/position = Vector2(-133.333, 386.667)
+node_connections = [&"output", 0, &"blend_tilt", &"blend_tilt", 0, &"in_air", &"blend_tilt", 1, &"tilting", &"in_air", 0, &"is_walking", &"in_air", 1, &"Animation 6", &"is_walking", 0, &"Animation", &"is_walking", 1, &"Animation 2", &"tilting", 0, &"Animation 3", &"tilting", 1, &"Animation 4", &"tilting", 2, &"Animation 5"]
 
 [sub_resource type="Gradient" id="Gradient_uba0u"]
 colors = PackedColorArray(1, 1, 1, 1, 0.72549, 0.772549, 0.788235, 1)
@@ -237,6 +298,54 @@ scale_max = 0.2
 scale_curve = SubResource("CurveTexture_tyii5")
 color_ramp = SubResource("GradientTexture1D_w11pb")
 
+[sub_resource type="Curve" id="Curve_4x7gp"]
+max_value = 100.0
+_data = [Vector2(0.717863, 0), 0.0, 0.0, 0, 0, Vector2(1, 42.3488), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_4coum"]
+curve = SubResource("Curve_4x7gp")
+
+[sub_resource type="Curve" id="Curve_c0kak"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.694491, 1), -1.75549, -1.75549, 0, 0, Vector2(1, 0), -5.6759, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_f2icr"]
+curve = SubResource("Curve_c0kak")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_eiayk"]
+lifetime_randomness = 0.3
+particle_flag_disable_z = true
+spread = 0.0
+gravity = Vector3(0, -20, 0)
+initial_velocity_min = 20.0
+initial_velocity_max = 30.0
+orbit_velocity_min = 0.0
+orbit_velocity_max = 0.0
+damping_min = 15.0
+damping_max = 15.0
+damping_curve = SubResource("CurveTexture_4coum")
+scale_min = 0.1
+scale_max = 0.2
+scale_curve = SubResource("CurveTexture_f2icr")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_opy8i"]
+lifetime_randomness = 0.3
+particle_flag_disable_z = true
+direction = Vector3(-1, 0, 0)
+spread = 0.0
+gravity = Vector3(0, -20, 0)
+initial_velocity_min = 20.0
+initial_velocity_max = 30.0
+orbit_velocity_min = 0.0
+orbit_velocity_max = 0.0
+damping_min = 15.0
+damping_max = 15.0
+damping_curve = SubResource("CurveTexture_4coum")
+scale_min = 0.1
+scale_max = 0.2
+scale_curve = SubResource("CurveTexture_f2icr")
+
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_4ho55"]
 radius = 3.0
 height = 11.0
@@ -245,6 +354,9 @@ height = 11.0
 collision_layer = 2
 collision_mask = 5
 script = SubResource("GDScript_t7jlq")
+jump_size = Vector2(4, 3)
+short_jump = NodePath("ShortJump")
+speed = 75.0
 
 [node name="Sprite" type="Sprite2D" parent="."]
 position = Vector2(0, 7)
@@ -262,13 +374,16 @@ libraries = {
 tree_root = SubResource("AnimationNodeBlendTree_x636r")
 anim_player = NodePath("../AnimationPlayer")
 active = true
-parameters/BlendA/blend_amount = 1.0
-parameters/movement/current_state = "idle"
-parameters/movement/transition_request = ""
-parameters/movement/current_index = 0
-parameters/tilt/current_state = "static"
-parameters/tilt/transition_request = ""
-parameters/tilt/current_index = 1
+parameters/blend_tilt/blend_amount = 1.0
+parameters/in_air/current_state = "ground"
+parameters/in_air/transition_request = ""
+parameters/in_air/current_index = 0
+parameters/is_walking/current_state = "static"
+parameters/is_walking/transition_request = ""
+parameters/is_walking/current_index = 0
+parameters/tilting/current_state = "static"
+parameters/tilting/transition_request = ""
+parameters/tilting/current_index = 1
 
 [node name="WalkingParticles" type="GPUParticles2D" parent="Sprite"]
 scale = Vector2(1e-05, 1e-05)
@@ -278,8 +393,30 @@ process_material = SubResource("ParticleProcessMaterial_dxjoh")
 texture = ExtResource("4_radlf")
 lifetime = 0.3
 
+[node name="FallParticlesR" type="GPUParticles2D" parent="Sprite"]
+emitting = false
+amount = 5
+process_material = SubResource("ParticleProcessMaterial_eiayk")
+texture = ExtResource("4_radlf")
+lifetime = 0.2
+one_shot = true
+explosiveness = 0.75
+
+[node name="FallParticlesL" type="GPUParticles2D" parent="Sprite"]
+emitting = false
+amount = 5
+process_material = SubResource("ParticleProcessMaterial_opy8i")
+texture = ExtResource("4_radlf")
+lifetime = 0.2
+one_shot = true
+explosiveness = 0.75
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 1)
 shape = SubResource("CapsuleShape2D_4ho55")
 
 [node name="Marker" type="Node2D" parent="."]
+
+[node name="ShortJump" type="RayCast2D" parent="."]
+position = Vector2(0, 7)
+target_position = Vector2(0, 12)

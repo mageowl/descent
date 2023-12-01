@@ -36,6 +36,7 @@ func _enter_tree():
 			4:
 				tile_points.append(Vector2i(0, 0))
 			5:
+				tile_points.append(Vector2i(1, 0))
 				tile_connection = Vector2i(0, 1)
 			6:
 				tile_points.append(Vector2i(0, 0))
@@ -51,38 +52,40 @@ func _enter_tree():
 		nav_data.ledges.l.append_array(tile_ledges.l.map(func (pt): return Vector2((cell + pt) * tile_set.tile_size)))
 		nav_data.ledges.r.append_array(tile_ledges.r.map(func (pt): return Vector2((cell + pt) * tile_set.tile_size)))
 
-func _draw():
-	for line in nav_data.connections:
-		if (nav_data.points.size() > line[0] + 1): draw_line(nav_data.points[line[0]], line[1], Color.WHITE, 1)
-	
-	for point in nav_data.points:
-		draw_circle(point, 1, Color.RED)
-	
-	var ledges = []
-	ledges.append_array(nav_data.ledges.r)
-	ledges.append_array(nav_data.ledges.l)
-	for point in ledges:
-		draw_circle(point, 1, Color.BLUE)
-
 func query_agent(astar: AStar2D, query: PlatformerAgentQuery2D):
 	var index = 0
+	var index_map = {}
 	for point in nav_data.points:
-		astar.add_point(index, point)
+		var pt_copy = astar.get_closest_point(point)
+		if pt_copy == -1 or astar.get_point_position(pt_copy).distance_to(point) != 0:
+			astar.add_point(index, point)
+		else:
+			index_map[index] = pt_copy
 		index += 1
 	
 	for connection in nav_data.connections:
-		astar.connect_points(connection[0], astar.get_closest_point(connection[1]))
+		astar.connect_points(index_map[connection[0]] if index_map.has(connection[0]) else connection[0], astar.get_closest_point(connection[1]))
 	
 	for ledge in nav_data.ledges.r:
-		astar_ledge(tile_set.tile_size.x, ledge, query, astar)
+		astar_ledge(1, ledge, query, astar)
 	for ledge in nav_data.ledges.l:
-		astar_ledge(-tile_set.tile_size.x, ledge, query, astar)
+		astar_ledge(-1, ledge, query, astar)
 
-func astar_ledge(offset: float, ledge: Vector2, query: PlatformerAgentQuery2D, astar: AStar2D):
+func astar_ledge(dir: float, ledge: Vector2, query: PlatformerAgentQuery2D, astar: AStar2D):
+	var offset = dir * tile_set.tile_size.x
 	var drop = ledge + Vector2(offset, 0)
+	var cell = astar.get_closest_point(ledge)
 	var raycast = PhysicsRayQueryParameters2D.create(drop, drop + Vector2(0, query.max_fall), 0b0001_0000)
 	raycast.hit_from_inside = true
 	var collision = get_world_2d().direct_space_state.intersect_ray(raycast)
 	
 	if collision:
-		astar.connect_points(astar.get_closest_point(ledge), astar.get_closest_point(collision.position), false)
+		astar.connect_points(cell, astar.get_closest_point(collision.position), collision.position.y - ledge.y <= tile_set.tile_size.y)
+	
+	for x in range(1, query.jump_size.x):
+		for y in range(-query.jump_size.y, query.jump_size.y):
+			var pt = Vector2(x * dir, y) * Vector2(tile_set.tile_size) + ledge
+			var to: int = astar.get_closest_point(pt)
+			
+			if pt.distance_to(astar.get_point_position(to)) < tile_set.tile_size.x:
+				astar.connect_points(to, cell, false)
