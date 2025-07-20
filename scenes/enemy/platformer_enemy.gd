@@ -58,9 +58,12 @@ func movement(delta: float):
 	else:
 		velocity.x = move_toward(velocity.x, 0, speed * (friction if is_on_floor() else air_friction))
 	
+	velocity += knockback_force
+	
 	move_and_slide()
 	trigger.direction = 0
 	trigger.jump = false
 
 func _physics_process(delta):
+	super(delta)
 	if not prevent_physics: movement(delta)

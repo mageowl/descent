@@ -1,8 +1,8 @@
 [gd_scene load_steps=20 format=3 uid="uid://dd1x5hlymoupa"]
 
 [ext_resource type="Texture2D" uid="uid://bsmjg7ttix3ff" path="res://scenes/weapon/sprites/flare_bloom.png" id="1_ldqhm"]
-[ext_resource type="Script" path="res://global/classes/object_pool.gd" id="2_quflj"]
-[ext_resource type="Script" path="res://scenes/weapon/generic_bullet.gd" id="3_ygx54"]
+[ext_resource type="Script" uid="uid://d201457bsonf3" path="res://global/classes/object_pool.gd" id="2_quflj"]
+[ext_resource type="Script" uid="uid://dfh4sntauamu0" path="res://scenes/weapon/bullet/generic_bullet.gd" id="3_ygx54"]
 [ext_resource type="Texture2D" uid="uid://bn6evonnn01pu" path="res://global/particle_circle.png" id="4_yf5d7"]
 
 [sub_resource type="GDScript" id="GDScript_vqfff"]
@@ -112,13 +112,13 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_s3nxs"]
 _data = {
-"RESET": SubResource("Animation_m02gm"),
-"reload": SubResource("Animation_ry14b"),
-"shoot": SubResource("Animation_yssa6")
+&"RESET": SubResource("Animation_m02gm"),
+&"reload": SubResource("Animation_ry14b"),
+&"shoot": SubResource("Animation_yssa6")
 }
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_c8wxh"]
-radius = 6.0
+radius = 7.07107
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_bk0pu"]
 blend_mode = 1
@@ -134,11 +134,9 @@ curve = SubResource("Curve_0774p")
 particle_flag_disable_z = true
 direction = Vector3(-1, 0, 0)
 spread = 15.0
-gravity = Vector3(0, 0, 0)
 initial_velocity_min = 15.0
 initial_velocity_max = 30.0
-orbit_velocity_min = 0.0
-orbit_velocity_max = 0.0
+gravity = Vector3(0, 0, 0)
 scale_min = 0.5
 scale_max = 0.7
 scale_curve = SubResource("CurveTexture_sryqy")
@@ -161,11 +159,9 @@ curve = SubResource("Curve_jqk0o")
 particle_flag_disable_z = true
 direction = Vector3(0, 0, 0)
 spread = 180.0
-gravity = Vector3(0, 0, 0)
 initial_velocity_min = 30.0
 initial_velocity_max = 60.0
-orbit_velocity_min = 0.0
-orbit_velocity_max = 0.0
+gravity = Vector3(0, 0, 0)
 scale_min = 0.5
 scale_max = 0.7
 scale_curve = SubResource("CurveTexture_o7jyr")
@@ -189,19 +185,23 @@ script = ExtResource("2_quflj")
 
 [node name="BasicBullet" type="Area2D" parent="ObjectPool"]
 collision_layer = 4
+collision_mask = 3
 script = ExtResource("3_ygx54")
 bullet_gravity = 10
 bounce = 4
 bounce_damping = 0.9
+collision_shape = NodePath("CollisionShape2D")
 hit_particles = NodePath("HitParticles")
 trail_particles = NodePath("Trail")
-damage = 10
+damage = 4
 damage_type = 2
+knockback_power_min = 100
+knockback_power_max = 160
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ObjectPool/BasicBullet"]
 shape = SubResource("CircleShape2D_c8wxh")
 
-[node name="Trail" type="GPUParticles2D" parent="ObjectPool/BasicBullet"]
+[node name="Trail" type="GPUParticles2D" parent="ObjectPool/BasicBullet" groups=["bullet"]]
 material = SubResource("CanvasItemMaterial_bk0pu")
 amount = 40
 process_material = SubResource("ParticleProcessMaterial_qnylg")

@@ -1,19 +1,170 @@
-[gd_scene load_steps=4 format=3 uid="uid://dfstd33w2374x"]
+[gd_scene load_steps=9 format=3 uid="uid://dfstd33w2374x"]
 
-[ext_resource type="Script" path="res://scenes/weapon/generic.gd" id="1_ombmi"]
+[ext_resource type="Shader" uid="uid://cd4c315njlltj" path="res://global/shaders/flash.gdshader" id="1_iy7v3"]
 [ext_resource type="Texture2D" uid="uid://cpir3ejmpbe2o" path="res://scenes/weapon/sprites/basic_sword.png" id="2_ijfu1"]
 
+[sub_resource type="GDScript" id="GDScript_r0vw7"]
+script/source = "extends GenericMeleeWeapon
+
+@onready var sprite = $Sprite
+@onready var animation_player = $AnimationPlayer
+
+func _ready():
+	create_unique_resource(sprite, \"material\")
+
+func _process_weapon(aim: Vector2):
+	super(aim)
+	
+	rotation = lerp_angle(rotation, aim.angle(), 0.5)
+	if cooldown == 0: 
+		sprite.flip_v = aim.x < 0
+		sprite.rotation = 0.3 if aim.x < 0 else -0.3
+	
+	if not input_map.is_action_pressed(\"attack\") and cooldown == 0:
+		animation_player.play(\"RESET\")
+
+func _attack():
+	animation_player.queue(\"swing\")
+	cooldown = 0.31
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5jgak"]
+shader = ExtResource("1_iy7v3")
+shader_parameter/flash = false
+
+[sub_resource type="Animation" id="Animation_onyw3"]
+length = 0.001
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite:position:x")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(-5, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0.001)
+}
+tracks/1/type = "bezier"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite:position:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(-1, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0.001)
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sprite:material:shader_parameter/flash")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+
+[sub_resource type="Animation" id="Animation_mpob2"]
+resource_name = "swing"
+length = 0.6
+loop_mode = 1
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite:position:x")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0, 0),
+"points": PackedFloat32Array(5.3, 0, 0, 0, 10.7528, 5.29961, 0, 11.7685, 0.00145312, 7.19321, 5.29961, 0, 7.59931, 0.00387496, 10.4763, 5.53399, 0, 10.888, 0.2, -5.86822),
+"times": PackedFloat32Array(0, 0.2, 0.3, 0.5)
+}
+tracks/1/type = "bezier"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite:position:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0, 0),
+"points": PackedFloat32Array(-9.63555, 0, 1.53912, 0.2, 5.70557, 10.25, -0.1, -2.93669, 0.1, 0.346023, 10.25, -0.1, -2.93669, 0.1, 0.346023, -9.63555, -0.2, 6.08557, 0.2, 4.62936),
+"times": PackedFloat32Array(0, 0.2, 0.3, 0.5)
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sprite:material:shader_parameter/flash")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.05, 0.2, 0.3, 0.4, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [true, false, false, true, false]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Sprite:rotation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0.05, 0.2, 0.325, 0.55),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [-0.315905, 3.64948, 3.64948, -0.961676]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Sprite:flip_v")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_re1pq"]
+_data = {
+&"RESET": SubResource("Animation_onyw3"),
+&"swing": SubResource("Animation_mpob2")
+}
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0lckl"]
-size = Vector2(16, 20)
+size = Vector2(24, 20)
 
-[node name="Sword" type="Area2D"]
-script = ExtResource("1_ombmi")
+[node name="Sword" type="Node2D"]
+script = SubResource("GDScript_r0vw7")
+hurt_box = NodePath("HurtBox")
+pogo_raycast = NodePath("PogoCaster")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_5jgak")
 position = Vector2(-5, -1)
+rotation = -0.63879
 texture = ExtResource("2_ijfu1")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(13, 0)
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_re1pq")
+}
+
+[node name="HurtBox" type="Area2D" parent="."]
+collision_layer = 4
+collision_mask = 6
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox"]
+position = Vector2(12, 0)
 shape = SubResource("RectangleShape2D_0lckl")
 debug_color = Color(1, 0.215686, 0.215686, 0.419608)
+
+[node name="PogoCaster" type="RayCast2D" parent="."]
+target_position = Vector2(30, 0)

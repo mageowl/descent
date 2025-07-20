@@ -1,6 +1,14 @@
-[gd_scene load_steps=5 format=3 uid="uid://b7jceqvpo4u46"]
+[gd_scene load_steps=8 format=3 uid="uid://b7jceqvpo4u46"]
 
 [ext_resource type="Texture2D" uid="uid://o77bu0hbaxcy" path="res://global/particle_circle_large.png" id="1_jayp4"]
+[ext_resource type="Script" uid="uid://dw7volheaslen" path="res://scenes/camera/main_camera.gd" id="1_nuobu"]
+
+[sub_resource type="Gradient" id="Gradient_4pbra"]
+colors = PackedColorArray(0.205729, 0.205729, 0.205729, 1, 0.0666667, 0.0666667, 0.0666667, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_880p1"]
+gradient = SubResource("Gradient_4pbra")
+fill_to = Vector2(0, 1)
 
 [sub_resource type="Curve" id="Curve_1qgjb"]
 _data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
@@ -11,16 +19,14 @@ curve = SubResource("Curve_1qgjb")
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_t57i4"]
 lifetime_randomness = 0.4
+particle_flag_disable_z = true
 emission_shape = 3
 emission_box_extents = Vector3(160, 1, 1)
-particle_flag_disable_z = true
 direction = Vector3(0, -1, 0)
 spread = 0.0
-gravity = Vector3(0, 0, 0)
 initial_velocity_min = 12.0
 initial_velocity_max = 25.0
-orbit_velocity_min = 0.0
-orbit_velocity_max = 0.0
+gravity = Vector3(0, 0, 0)
 scale_min = 0.1
 scale_max = 0.5
 scale_curve = SubResource("CurveTexture_7yk47")
@@ -28,21 +34,28 @@ color = Color(0, 0, 0, 1)
 
 [node name="MainCamera" type="Camera2D" groups=["main_camera"]]
 position = Vector2(160, 88)
+position_smoothing_enabled = true
+position_smoothing_speed = 10.0
+drag_vertical_enabled = true
+script = ExtResource("1_nuobu")
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="Background" type="CanvasLayer" parent="."]
+layer = -1
+
+[node name="ColorRect" type="TextureRect" parent="Background"]
 show_behind_parent = true
-z_index = -2
-offset_left = -160.0
-offset_top = -88.0
-offset_right = 160.0
-offset_bottom = 88.0
-color = Color(0.137255, 0.137255, 0.137255, 1)
+offset_left = -5.0
+offset_top = -3.0
+offset_right = 325.0
+offset_bottom = 183.0
+texture = SubResource("GradientTexture2D_880p1")
 
-[node name="GPUParticles2D" type="GPUParticles2D" parent="ColorRect"]
-position = Vector2(160, 184)
+[node name="GPUParticles2D" type="GPUParticles2D" parent="Background/ColorRect"]
+position = Vector2(165, 184)
 amount = 120
 process_material = SubResource("ParticleProcessMaterial_t57i4")
 texture = ExtResource("1_jayp4")
 lifetime = 15.0
 preprocess = 20.0
 visibility_rect = Rect2(-160, -100, 320, 200)
+local_coords = true

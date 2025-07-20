@@ -1,12 +1,26 @@
 class_name Entity extends CharacterBody2D
 
+signal hp_changed(value: int)
+signal max_hp_changed(value: int)
+
 const FLASH_SHADER = preload("res://global/shaders/flash.gdshader")
 
-@export var max_hp = 10
+@export var max_hp: int = 10 :
+	set(v):
+		max_hp_changed.emit(v)
+		max_hp = max(v, 1)
+		hp = min(hp, max_hp)
 @export var team: DamageSource.Team = DamageSource.Team.ENEMY
-@onready var hp = max_hp
+@onready var hp: int = max_hp :
+	set(v):
+		hp_changed.emit(v)
+		hp = max(v, 0)
 var modifiers = ModifierArray.new(self, ["damage", "heal", "deal_damage"])
 var invul = 0
+
+var knockback_force: Vector2
+var knockback_decay: float
+var knockback_power: float
 
 func _ready():
 	var sprite = get_node_or_null("Sprite")
@@ -14,9 +28,11 @@ func _ready():
 		sprite.material = ShaderMaterial.new()
 		sprite.material.shader = FLASH_SHADER
 
-func _process(_delta):
+func _physics_process(delta):
 	if invul >= 1:
 		invul -= 1
+	
+	knockback_force = knockback_force.move_toward(Vector2.ZERO, knockback_power * knockback_decay * delta)
 
 func damage(source: DamageSource, hurt_points: int, type: DamageSource.Type):
 	var args = {"source": source, "hurt_points": hurt_points, "type": type}
@@ -41,6 +57,11 @@ func damage(source: DamageSource, hurt_points: int, type: DamageSource.Type):
 func heal(source: DamageSource, hit_points: int):
 	var args = modifiers.damage.modify({"source": source, "hit_points": hit_points})
 	hp += args.hit_points
+
+func knockback(force: Vector2, decay: float):
+	knockback_force = force
+	knockback_decay = decay
+	knockback_power = force.length()
 
 func _kill():
 	queue_free()

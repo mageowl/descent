@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="ResourcePool" load_steps=3 format=3 uid="uid://uw2rapiahtyr"]
+
+[ext_resource type="Script" uid="uid://rmyoyy1vrlqy" path="res://global/classes/resource_pool.gd" id="1_ucysa"]
+[ext_resource type="PackedScene" uid="uid://dl6uaikhvmugh" path="res://scenes/world/rooms/left_down_01.tscn" id="3_wrx4b"]
+
+[resource]
+script = ExtResource("1_ucysa")
+items = Array[Resource]([ExtResource("3_wrx4b")])

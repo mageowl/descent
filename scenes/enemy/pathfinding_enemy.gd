@@ -1,6 +1,6 @@
 class_name PathfindingEnemy extends Enemy
 
-@onready var tilemap: PlatformerLevel2D = find_parent("Room*")
+@onready var tilemap: PlatformerLevel2D = find_parent("World")
 var astar = AStar2D.new()
 var path = []
 var target_position: Vector2

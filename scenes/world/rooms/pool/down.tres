@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ResourcePool" load_steps=6 format=3 uid="uid://2dpstlxegjn3"]
+
+[ext_resource type="PackedScene" uid="uid://c3krak5wrcv54" path="res://scenes/world/rooms/left_up_01.tscn" id="1_5wgag"]
+[ext_resource type="Script" uid="uid://rmyoyy1vrlqy" path="res://global/classes/resource_pool.gd" id="1_wis1f"]
+[ext_resource type="PackedScene" uid="uid://b4snwgfn4hk18" path="res://scenes/world/rooms/right_up_01.tscn" id="2_3basn"]
+[ext_resource type="PackedScene" uid="uid://bxlh10qjotakm" path="res://scenes/world/rooms/vert_01.tscn" id="3_h0dnf"]
+[ext_resource type="PackedScene" uid="uid://cngq1wstg73y5" path="res://scenes/world/rooms/vert_02.tscn" id="4_1k4mu"]
+
+[resource]
+script = ExtResource("1_wis1f")
+items = Array[Resource]([ExtResource("1_5wgag"), ExtResource("2_3basn"), ExtResource("3_h0dnf"), ExtResource("4_1k4mu")])

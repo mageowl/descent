@@ -1,15 +1,15 @@
 [gd_scene load_steps=23 format=3 uid="uid://bdbrbjgnblxwq"]
 
 [ext_resource type="Texture2D" uid="uid://cdeyk1w8pit76" path="res://scenes/weapon/sprites/silver_pistol.png" id="1_0qwna"]
-[ext_resource type="Script" path="res://global/classes/object_pool.gd" id="2_th2vs"]
-[ext_resource type="Script" path="res://scenes/weapon/generic_bullet.gd" id="3_11ib1"]
+[ext_resource type="Script" uid="uid://d201457bsonf3" path="res://global/classes/object_pool.gd" id="2_th2vs"]
+[ext_resource type="Script" uid="uid://dfh4sntauamu0" path="res://scenes/weapon/bullet/generic_bullet.gd" id="3_bcxny"]
 
 [sub_resource type="GDScript" id="GDScript_k0bvy"]
 resource_name = "silver_pistol"
 script/source = "extends GenericWeapon
 
 @onready var sprite = $Sprite
-@onready var animation_player: AnimationPlayer = $AnimationPlayer
+@onready var animation_player: AnimationPlayer = $Sprite/AnimationPlayer
 @onready var object_pool = $ObjectPool
 @onready var nose = $Nose
 
@@ -25,7 +25,7 @@ func _process_weapon(aim: Vector2):
 	
 	if input_map.is_action_pressed(\"attack\") && cooldown == 0:
 		animation_player.queue(\"shoot_flip\" if sprite.flip_v else \"shoot\")
-		cooldown = 0.2
+		cooldown = 0.2 
 		
 		var bullet: BasicBullet = object_pool.spawn(nose.global_position)
 		bullet.velocity = aim.normalized()
@@ -33,73 +33,72 @@ func _process_weapon(aim: Vector2):
 
 [sub_resource type="Animation" id="Animation_q6nkg"]
 length = 0.001
-tracks/0/type = "bezier"
+tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Sprite:rotation")
+tracks/0/path = NodePath(".:scale")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"handle_modes": PackedInt32Array(0),
-"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0),
-"times": PackedFloat32Array(0)
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Sprite:scale")
+tracks/1/path = NodePath(".:offset")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(1, 1)]
+"values": [Vector2(6, 0)]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
 tracks/2/enabled = true
-tracks/2/path = NodePath("Sprite:offset")
+tracks/2/path = NodePath(".:position")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(6, 0)]
+"values": [Vector2(1, 0)]
 }
-tracks/3/type = "value"
+tracks/3/type = "bezier"
 tracks/3/imported = false
 tracks/3/enabled = true
-tracks/3/path = NodePath("Sprite:position")
+tracks/3/path = NodePath(".:rotation")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(1, 0)]
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(6.28319, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
 }
 
-[sub_resource type="Animation" id="Animation_blydl"]
+[sub_resource type="Animation" id="Animation_xaufi"]
 resource_name = "reload"
 length = 0.3
-tracks/0/type = "value"
+tracks/0/type = "bezier"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Sprite:rotation")
+tracks/0/path = NodePath(".:rotation")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.3),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [0.0, 6.28319]
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 6.28319, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.3)
 }
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Sprite:offset")
+tracks/1/path = NodePath(".:offset")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -111,7 +110,7 @@ tracks/1/keys = {
 tracks/2/type = "value"
 tracks/2/imported = false
 tracks/2/enabled = true
-tracks/2/path = NodePath("Sprite:position")
+tracks/2/path = NodePath(".:position")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
@@ -127,7 +126,7 @@ length = 0.2
 tracks/0/type = "bezier"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Sprite:rotation")
+tracks/0/path = NodePath(".:rotation")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -138,7 +137,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Sprite:scale")
+tracks/1/path = NodePath(".:scale")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -154,7 +153,7 @@ length = 0.2
 tracks/0/type = "bezier"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Sprite:rotation")
+tracks/0/path = NodePath(".:rotation")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -165,7 +164,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Sprite:scale")
+tracks/1/path = NodePath(".:scale")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -177,10 +176,10 @@ tracks/1/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_rkjr6"]
 _data = {
-"RESET": SubResource("Animation_q6nkg"),
-"reload": SubResource("Animation_blydl"),
-"shoot": SubResource("Animation_txrsb"),
-"shoot_flip": SubResource("Animation_5l1fu")
+&"RESET": SubResource("Animation_q6nkg"),
+&"reload": SubResource("Animation_xaufi"),
+&"shoot": SubResource("Animation_txrsb"),
+&"shoot_flip": SubResource("Animation_5l1fu")
 }
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_0gnyy"]
@@ -203,11 +202,9 @@ curve = SubResource("Curve_b6nex")
 particle_flag_disable_z = true
 direction = Vector3(-1, 0, 0)
 spread = 5.0
-gravity = Vector3(0, 0, 0)
 initial_velocity_min = 15.0
 initial_velocity_max = 15.0
-orbit_velocity_min = 0.0
-orbit_velocity_max = 0.0
+gravity = Vector3(0, 0, 0)
 scale_min = 2.0
 scale_max = 2.5
 scale_curve = SubResource("CurveTexture_ewxco")
@@ -233,15 +230,13 @@ curve = SubResource("Curve_vl65g")
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_5ffm4"]
 particle_flag_disable_z = true
+angle_max = 360.0
 spread = 180.0
-gravity = Vector3(0, 0, 0)
 initial_velocity_min = 50.0
 initial_velocity_max = 55.0
 angular_velocity_min = -15.0
 angular_velocity_max = 15.0
-orbit_velocity_min = 0.0
-orbit_velocity_max = 0.0
-angle_max = 360.0
+gravity = Vector3(0, 0, 0)
 scale_min = 2.0
 scale_max = 4.0
 scale_curve = SubResource("CurveTexture_ifqmo")
@@ -257,10 +252,11 @@ script = SubResource("GDScript_k0bvy")
 
 [node name="Sprite" type="Sprite2D" parent="."]
 position = Vector2(1, 0)
+rotation = 6.28319
 texture = ExtResource("1_0qwna")
 offset = Vector2(6, 0)
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Sprite"]
 libraries = {
 "": SubResource("AnimationLibrary_rkjr6")
 }
@@ -268,14 +264,17 @@ libraries = {
 [node name="ObjectPool" type="Node" parent="."]
 script = ExtResource("2_th2vs")
 
-[node name="BasicBullet" type="Area2D" parent="ObjectPool"]
+[node name="BasicBullet" type="Area2D" parent="ObjectPool" groups=["bullet"]]
 z_index = -1
 collision_layer = 4
 collision_mask = 3
-script = ExtResource("3_11ib1")
+script = ExtResource("3_bcxny")
 speed = 300
 hit_particles = NodePath("Hit")
-damage = 5
+damage = 3
+knockback_power_min = 80
+knockback_power_max = 90
+knockback_decay = 20.0
 
 [node name="Trail" type="GPUParticles2D" parent="ObjectPool/BasicBullet"]
 material = SubResource("CanvasItemMaterial_0gnyy")

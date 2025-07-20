@@ -1,7 +1,7 @@
 class_name CharacterSelectScreen extends Node2D
 
 const PlayerScene = preload("res://scenes/player/player.tscn")
-const markers = [
+const MARKERS = [
 	preload("res://scenes/player/marker-1.png"),
 	preload("res://scenes/player/marker-2.png"),
 	preload("res://scenes/player/marker-3.png"),
@@ -26,7 +26,7 @@ func _ready():
 		player_container.add_child(instance)
 
 		var selector: Sprite2D = Sprite2D.new()
-		selector.texture = markers[joypad_id]
+		selector.texture = MARKERS[joypad_id]
 		selector.position = availible_player_container.get_child(joypad_id).position
 		selector.offset.y = -10
 		selector.name = "Selector%d" % joypad_id
@@ -64,5 +64,6 @@ func enable_player(device, index):
 	player.set_character_skin(index)
 	player.position = availible_player_container.get_child(index).position
 	player.process_mode = Node.PROCESS_MODE_INHERIT
+	player.player_index = device
+	print(device)
 	selecting_players[device] = -1
-

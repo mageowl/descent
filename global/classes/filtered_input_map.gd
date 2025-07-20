@@ -1,6 +1,10 @@
 class_name FilteredInputMap extends Node
 
-@export var controller: int = -1
+@export var controller: int = -1 : 
+	set(v):
+		controller = v
+		if v > -1:
+			prefix = "p%d_" % controller
 
 var prefix = ""
 

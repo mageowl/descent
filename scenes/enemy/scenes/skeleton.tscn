@@ -1,15 +1,36 @@
-[gd_scene load_steps=34 format=3 uid="uid://dj1t1y67pb7a0"]
+[gd_scene load_steps=46 format=3 uid="uid://dj1t1y67pb7a0"]
 
+[ext_resource type="Script" uid="uid://cfjqoef70t7kp" path="res://global/classes/controlled_input_map.gd" id="1_183w0"]
 [ext_resource type="AnimationLibrary" uid="uid://p2my034atfgm" path="res://scenes/player/animations/generic.tres" id="2_skcit"]
 [ext_resource type="Texture2D" uid="uid://302uwxn7inah" path="res://scenes/enemy/sprites/skeleton.png" id="2_y0d4k"]
+[ext_resource type="AudioStream" uid="uid://thkgbna50v2i" path="res://scenes/player/sounds/land-1.wav" id="4_c2qck"]
 [ext_resource type="Texture2D" uid="uid://bn6evonnn01pu" path="res://global/particle_circle.png" id="4_radlf"]
+[ext_resource type="AudioStream" uid="uid://cy08pl0o03w21" path="res://scenes/player/sounds/land-2.wav" id="5_wo2sa"]
+[ext_resource type="AudioStream" uid="uid://bg58l0ox88ykt" path="res://scenes/player/sounds/land-3.wav" id="6_jei83"]
+[ext_resource type="AudioStream" uid="uid://6auobbyenqla" path="res://scenes/player/sounds/footsteps-1.wav" id="7_2wpr7"]
+[ext_resource type="AudioStream" uid="uid://dy1gitn7d4i32" path="res://scenes/player/sounds/footsteps-2.wav" id="8_a2tf0"]
+[ext_resource type="PackedScene" uid="uid://b6sx2fwkoge20" path="res://scenes/weapon/objects/bone_spear.tscn" id="9_irmfm"]
 
 [sub_resource type="GDScript" id="GDScript_t7jlq"]
 script/source = "extends PlatformerEnemy
 
+@export var reach = 25
 @onready var animation_tree = $Sprite/AnimationTree
 @onready var sprite = $Sprite
 @onready var players = get_tree().get_nodes_in_group(\"player\")
+@onready var ground_left = $WalkLeft
+@onready var ground_right = $WalkRight
+@onready var stop_left = $WallLeft
+@onready var stop_right = $WallRight
+@onready var weapon: GenericWeapon = $Weapon.get_children()[0]
+@onready var input_map: ControlledInputMap = $InputMap
+var patrol_direction = randi_range(0, 1) * 2 - 1
+var patrol_time = 0
+
+func _ready():
+	super()
+	weapon._set_data(input_map, team)
+	weapon.parent = self
 
 func animate():
 	var set_p = func (property, value):
@@ -21,8 +42,16 @@ func animate():
 	set_p.call(\"tilting/transition_request\", [\"left\", \"static\", \"right\"][round(direction) + 1])
 	set_p.call(\"in_air/transition_request\", \"ground\" if is_on_floor() else \"air\")
 
-func _process(_d):
+func _process(delta):
+	var target_distance = INF
+	
 	if target:
+		target_distance = position.distance_to(target.position)
+		if target_distance <= reach:
+			input_map.press(\"attack\")
+		else:
+			input_map.release(\"attack\")
+		
 		if path.size() > 0:
 			var distance = path[0] - position
 			trigger.direction = sign(distance.x)
@@ -44,8 +73,31 @@ func _process(_d):
 			if has_los_to(player.position):
 				target = player
 				pathfind_to(player.position)
+		
+		if patrol_time == 0:
+			match patrol_direction:
+				1:
+					if ground_right.is_colliding() and not stop_right.is_colliding():
+						trigger.direction = 1
+					else:
+						patrol_direction = -1
+						patrol_time = randf_range(2, 5)
+				-1:
+					if ground_left.is_colliding() and not stop_left.is_colliding():
+						trigger.direction = -1
+					else:
+						patrol_direction = 1
+						patrol_time = randf_range(2, 5)
+		else: 
+			patrol_time = move_toward(patrol_time, 0, delta)
+			trigger.direction = 0
 	
 	animate()
+	
+	weapon._process_weapon(
+			Vector2(trigger.direction, 0) 
+			if target_distance > reach * 4 or target == null
+			else (target.position - position).normalized())
 
 "
 
@@ -186,10 +238,10 @@ tracks/1/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_gn4qs"]
 _data = {
-"Fall": SubResource("Animation_p0x7m"),
-"Idle": SubResource("Animation_y3iq8"),
-"RESET": SubResource("Animation_3uutx"),
-"Walk": SubResource("Animation_01m4m")
+&"Fall": SubResource("Animation_p0x7m"),
+&"Idle": SubResource("Animation_y3iq8"),
+&"RESET": SubResource("Animation_3uutx"),
+&"Walk": SubResource("Animation_01m4m")
 }
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_xlh03"]
@@ -217,17 +269,21 @@ filters = [".:rotation", ".:scale", "WalkingParticles:scale"]
 [sub_resource type="AnimationNodeTransition" id="AnimationNodeTransition_le6o4"]
 input_0/name = "ground"
 input_0/auto_advance = false
+input_0/break_loop_at_end = false
 input_0/reset = true
 input_1/name = "air"
 input_1/auto_advance = false
+input_1/break_loop_at_end = false
 input_1/reset = true
 
 [sub_resource type="AnimationNodeTransition" id="AnimationNodeTransition_rgh2l"]
 input_0/name = "static"
 input_0/auto_advance = false
+input_0/break_loop_at_end = false
 input_0/reset = true
 input_1/name = "walk"
 input_1/auto_advance = false
+input_1/break_loop_at_end = false
 input_1/reset = true
 
 [sub_resource type="Curve" id="Curve_7sgrx"]
@@ -239,12 +295,15 @@ xfade_time = 0.2
 xfade_curve = SubResource("Curve_7sgrx")
 input_0/name = "left"
 input_0/auto_advance = false
+input_0/break_loop_at_end = false
 input_0/reset = true
 input_1/name = "static"
 input_1/auto_advance = false
+input_1/break_loop_at_end = false
 input_1/reset = true
 input_2/name = "right"
 input_2/auto_advance = false
+input_2/break_loop_at_end = false
 input_2/reset = true
 
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_x636r"]
@@ -269,7 +328,7 @@ nodes/is_walking/node = SubResource("AnimationNodeTransition_rgh2l")
 nodes/is_walking/position = Vector2(-373.333, 40)
 nodes/tilting/node = SubResource("AnimationNodeTransition_takvw")
 nodes/tilting/position = Vector2(-133.333, 386.667)
-node_connections = [&"output", 0, &"blend_tilt", &"blend_tilt", 0, &"in_air", &"blend_tilt", 1, &"tilting", &"in_air", 0, &"is_walking", &"in_air", 1, &"Animation 6", &"is_walking", 0, &"Animation", &"is_walking", 1, &"Animation 2", &"tilting", 0, &"Animation 3", &"tilting", 1, &"Animation 4", &"tilting", 2, &"Animation 5"]
+node_connections = [&"blend_tilt", 0, &"in_air", &"blend_tilt", 1, &"tilting", &"in_air", 0, &"is_walking", &"in_air", 1, &"Animation 6", &"is_walking", 0, &"Animation", &"is_walking", 1, &"Animation 2", &"output", 0, &"blend_tilt", &"tilting", 0, &"Animation 3", &"tilting", 1, &"Animation 4", &"tilting", 2, &"Animation 5"]
 
 [sub_resource type="Gradient" id="Gradient_uba0u"]
 colors = PackedColorArray(1, 1, 1, 1, 0.72549, 0.772549, 0.788235, 1)
@@ -288,18 +347,16 @@ curve = SubResource("Curve_7ug3p")
 particle_flag_disable_z = true
 direction = Vector3(-1, -0.1, 0)
 spread = 5.0
-gravity = Vector3(0, -20, 0)
 initial_velocity_min = 10.0
 initial_velocity_max = 20.0
-orbit_velocity_min = 0.0
-orbit_velocity_max = 0.0
+gravity = Vector3(0, -20, 0)
 scale_min = 0.1
 scale_max = 0.2
 scale_curve = SubResource("CurveTexture_tyii5")
 color_ramp = SubResource("GradientTexture1D_w11pb")
 
 [sub_resource type="Curve" id="Curve_4x7gp"]
-max_value = 100.0
+_limits = [0.0, 100.0, 0.0, 1.0]
 _data = [Vector2(0.717863, 0), 0.0, 0.0, 0, 0, Vector2(1, 42.3488), 0.0, 0.0, 0, 0]
 point_count = 2
 
@@ -317,11 +374,9 @@ curve = SubResource("Curve_c0kak")
 lifetime_randomness = 0.3
 particle_flag_disable_z = true
 spread = 0.0
-gravity = Vector3(0, -20, 0)
 initial_velocity_min = 20.0
 initial_velocity_max = 30.0
-orbit_velocity_min = 0.0
-orbit_velocity_max = 0.0
+gravity = Vector3(0, -20, 0)
 damping_min = 15.0
 damping_max = 15.0
 damping_curve = SubResource("CurveTexture_4coum")
@@ -334,17 +389,45 @@ lifetime_randomness = 0.3
 particle_flag_disable_z = true
 direction = Vector3(-1, 0, 0)
 spread = 0.0
-gravity = Vector3(0, -20, 0)
 initial_velocity_min = 20.0
 initial_velocity_max = 30.0
-orbit_velocity_min = 0.0
-orbit_velocity_max = 0.0
+gravity = Vector3(0, -20, 0)
 damping_min = 15.0
 damping_max = 15.0
 damping_curve = SubResource("CurveTexture_4coum")
 scale_min = 0.1
 scale_max = 0.2
 scale_curve = SubResource("CurveTexture_f2icr")
+
+[sub_resource type="Curve" id="Curve_sov44"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.236659, 1), 0.0, 0.0, 0, 0, Vector2(0.62181, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="CurveTexture" id="CurveTexture_5swid"]
+curve = SubResource("Curve_sov44")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_nk0md"]
+particle_flag_disable_z = true
+emission_shape = 1
+emission_sphere_radius = 2.0
+direction = Vector3(0, 1, 0)
+initial_velocity_min = 5.0
+initial_velocity_max = 10.0
+gravity = Vector3(0, 0, 0)
+scale_min = 0.1
+scale_max = 0.2
+scale_curve = SubResource("CurveTexture_5swid")
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_mbov6"]
+streams_count = 3
+stream_0/stream = ExtResource("4_c2qck")
+stream_1/stream = ExtResource("5_wo2sa")
+stream_2/stream = ExtResource("6_jei83")
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_nak8w"]
+streams_count = 2
+stream_0/stream = ExtResource("7_2wpr7")
+stream_1/stream = ExtResource("8_a2tf0")
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_4ho55"]
 radius = 3.0
@@ -354,9 +437,13 @@ height = 11.0
 collision_layer = 2
 collision_mask = 5
 script = SubResource("GDScript_t7jlq")
+reach = 40
 jump_size = Vector2(4, 3)
 short_jump = NodePath("ShortJump")
 speed = 75.0
+
+[node name="InputMap" type="Node" parent="."]
+script = ExtResource("1_183w0")
 
 [node name="Sprite" type="Sprite2D" parent="."]
 position = Vector2(0, 7)
@@ -371,9 +458,12 @@ libraries = {
 }
 
 [node name="AnimationTree" type="AnimationTree" parent="Sprite" groups=["enemy"]]
+libraries = {
+"": SubResource("AnimationLibrary_gn4qs"),
+"generic": ExtResource("2_skcit")
+}
 tree_root = SubResource("AnimationNodeBlendTree_x636r")
 anim_player = NodePath("../AnimationPlayer")
-active = true
 parameters/blend_tilt/blend_amount = 1.0
 parameters/in_air/current_state = "ground"
 parameters/in_air/transition_request = ""
@@ -411,6 +501,27 @@ lifetime = 0.2
 one_shot = true
 explosiveness = 0.75
 
+[node name="JumpParticles" type="GPUParticles2D" parent="Sprite"]
+position = Vector2(-0.138108, 1.99905)
+emitting = false
+process_material = SubResource("ParticleProcessMaterial_nk0md")
+texture = ExtResource("4_radlf")
+lifetime = 0.2
+one_shot = true
+explosiveness = 1.0
+
+[node name="Sounds" type="Node" parent="."]
+
+[node name="Land" type="AudioStreamPlayer" parent="Sounds"]
+stream = SubResource("AudioStreamRandomizer_mbov6")
+
+[node name="Footsteps" type="AudioStreamPlayer" parent="Sounds"]
+stream = SubResource("AudioStreamRandomizer_nak8w")
+
+[node name="Weapon" type="Node2D" parent="."]
+
+[node name="BoneSpear" parent="Weapon" instance=ExtResource("9_irmfm")]
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 1)
 shape = SubResource("CapsuleShape2D_4ho55")
@@ -420,3 +531,19 @@ shape = SubResource("CapsuleShape2D_4ho55")
 [node name="ShortJump" type="RayCast2D" parent="."]
 position = Vector2(0, 7)
 target_position = Vector2(0, 12)
+
+[node name="WalkRight" type="RayCast2D" parent="."]
+position = Vector2(13, 4)
+target_position = Vector2(0, 12)
+
+[node name="WalkLeft" type="RayCast2D" parent="."]
+position = Vector2(-12, 4)
+target_position = Vector2(0, 12)
+
+[node name="WallLeft" type="RayCast2D" parent="."]
+position = Vector2(-4, 4)
+target_position = Vector2(-12, 0)
+
+[node name="WallRight" type="RayCast2D" parent="."]
+position = Vector2(4, 4)
+target_position = Vector2(12, 0)

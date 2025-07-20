@@ -1,5 +1,6 @@
 class_name Player extends Entity
 
+const SNEAK_SPEED = 0.4
 const SPEED = 125.0
 const ACCELERATION = 0.1
 const FRICTION = 0.7
@@ -20,8 +21,15 @@ const SKINS = [
 	preload("res://scenes/player/animations/john.tres"),
 	preload("res://scenes/player/animations/ora.tres")
 ]
+const MARKERS = [
+	preload("res://scenes/player/marker-1.png"),
+	preload("res://scenes/player/marker-2.png"),
+	preload("res://scenes/player/marker-3.png"),
+	preload("res://scenes/player/marker-4.png")
+]
 
 @export var player_index = 0
+
 @onready var weapon_container = $Weapons
 @onready var animation_player = $Sprite/AnimationPlayer
 @onready var animation_tree = $Sprite/AnimationTree
@@ -30,51 +38,57 @@ const SKINS = [
 @onready var pickup_radius = $PickupRadius
 @onready var marker = $Marker
 @onready var footsteps_noises = $Sounds/Footsteps
+var hud: PlayerHUD
+
 var fall_time = 0
 var impact = 0
 var jump_input = 0
 var short_jump = false
 var short_jumped = false
+var crouching = false
 
 var current_action_callback: Callable = Util.PASS
 var weapons: Array[WeaponType] = [WeaponType.FIST, WeaponType.FIST]
 var current_weapon
 var weapon_index: int = 0
+var skin: int = 0
 
 func _ready():
 	super()
 	input_map.controller = player_index
+	marker.texture = MARKERS[player_index]
 	set_name.call_deferred(StringName("Player" + str(player_index)))
-	
+
 	for weapon in weapon_container.get_children():
 		weapon._set_input_map(input_map)
 
-func animate(direction):
-	var set_p = func (property, value): 
+func set_p(property, value): 
 		animation_tree["parameters/" + property] = value
-	
+
+func animate(direction):
 	if direction != 0: sprite.flip_h = direction < 0
-	set_p.call("is_walking/transition_request", "walk" if direction != 0 else "static")
-	set_p.call("tilting/transition_request", ["left", "static", "right"][round(direction) + 1])
-	set_p.call("in_air/transition_request", "ground" if is_on_floor() else "air")
+	set_p("is_walking/transition_request", "walk" if direction != 0 else "static")
+	set_p("tilting/transition_request", ["left", "static", "right"][round(direction) + 1])
+	set_p("in_air/transition_request", "ground" if is_on_floor() else "air")
 	
 	if is_on_floor():
 		if impact > 0:
 			var squash_factor: float = min(impact / 8.0, 50.0) / 80.0
-			set_p.call("squash/blend_position", -squash_factor)
-			if impact > 50: set_p.call("land/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
+			if crouching: squash_factor *= 1.6
+			set_p("squash/blend_position", -squash_factor)
+			if impact > 50: set_p("land/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
 			impact -= 50
 		else:
-			set_p.call("squash/blend_position", 0)
+			set_p("squash/blend_position", -0.6 if crouching else 0.0)
 			
 			if impact < 0 or impact > 0: impact = 0
 	else:
-		var squash_factor : float = min((min(velocity.y, GRAVITY * 10) * 0.7) / (JUMP_VELOCITY * (2 if velocity.y > 0 else 1)), 0.3)
-		set_p.call("squash/blend_position", squash_factor)
+		var squash_factor : float = min((min(velocity.y, GRAVITY * 10) * 0.7) / (JUMP_VELOCITY * (1.5 if velocity.y > 0 else 0.5)), 0.3)
+		set_p("squash/blend_position", squash_factor)
 		
-		impact = velocity.y * 1.6
+		impact = velocity.y * 1.8
 	
-	if $Sprite/WalkingParticles.emitting: 
+	if direction != 0 and is_on_floor(): 
 		if not footsteps_noises.playing: footsteps_noises.playing = true
 	elif footsteps_noises.playing:
 		footsteps_noises.playing = false
@@ -98,18 +112,24 @@ func movement(delta) -> int:
 	if jump_input > 0 and fall_time < CYOTE_TIME:
 		velocity.y = -JUMP_VELOCITY
 		fall_time = CYOTE_TIME
+		set_p("jump/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
 	
 	if input_map.is_action_just_released("jump"):
 		if velocity.y < 0 and not short_jumped:
 			short_jump = true
 	
 	if fall_time >= MIN_JUMP_SPAN and short_jump and not short_jumped:
-		velocity.y = -MIN_JUMP_VELOCITY
+		velocity.y = -MIN_JUMP_VELOCITY + knockback_force.y
 		short_jumped = true
 	
+	# Crouching
+	crouching = input_map.is_action_pressed("aim_down") and is_on_floor()
+	var movement_speed = SPEED * (SNEAK_SPEED if crouching else 1)
+	
+	# Walking
 	var direction = Util.deadzone(input_map.get_axis("left", "right"), 0.15, 0.4)
 	if direction and not input_map.is_action_pressed("aim"):
-		velocity.x = move_toward(velocity.x, sign(direction) * SPEED, ACCELERATION * SPEED * abs(direction))
+		velocity.x = move_toward(velocity.x, sign(direction) * movement_speed, ACCELERATION * SPEED * abs(direction))
 	else:
 		velocity.x = move_toward(velocity.x, 0, SPEED * (FRICTION if is_on_floor() else AIR_FRICTION))
 	
@@ -125,9 +145,11 @@ func equip_weapon(weapon: WeaponType):
 	
 	var instance: GenericWeapon = weapon.object.instantiate()
 	instance._set_data(input_map, team)
+	instance.parent = self
 	weapon_container.add_child(instance)
 	
 	weapons[weapon_index] = weapon
+	hud.set_weapon(weapon_index, weapon.gui_texture)
 	current_weapon = instance
 
 func swap_weapon():
@@ -137,11 +159,13 @@ func swap_weapon():
 	
 	weapon_index = (weapon_index + 1) % 2
 	current_weapon = weapon_container.get_child(weapon_index) if weapons[weapon_index] != WeaponType.FIST else null
+	hud.select_weapon(weapon_index)
 	if current_weapon != null:
 		current_weapon.visible = true
 		current_weapon._swap_to() if current_weapon.has_method("_swap_to") else null
 
 func _physics_process(delta):
+	super(delta)
 	var direction = movement(delta)
 	animate(direction)
 	
@@ -149,7 +173,7 @@ func _physics_process(delta):
 		var aim = Util.deadzone2(input_map.get_vector("left", "right", "aim_up", "aim_down")).normalized()
 		if not input_map.is_action_pressed("aim"): aim = aim.snapped(Vector2(1, 1))
 		if aim.y > 0 and not input_map.is_action_pressed("aim"): aim.x = 0
-		if InputController.using_keyboard: aim = position.direction_to(get_viewport().get_mouse_position())
+		if InputController.using_keyboard: aim = position.direction_to(get_global_mouse_position())
 		
 		if aim == Vector2.ZERO: aim.x = int(sprite.flip_h) * -2 + 1
 		current_weapon._process_weapon(aim)
@@ -159,6 +183,7 @@ func _physics_process(delta):
 	if input_map.is_action_just_pressed("swap_weapon"):
 		swap_weapon()
 	
+	velocity += knockback_force
 	move_and_slide()
 
 func set_character_skin(index):
@@ -166,6 +191,7 @@ func set_character_skin(index):
 	animation_player.remove_animation_library("")
 	animation_player.add_animation_library("", SKINS[index])
 	animation_player.queue("RESET")
+	skin = index
 
 func _on_enter_action_trigger(body):
 	animation_tree["parameters/marker_state/transition_request"] = "action"

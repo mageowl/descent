@@ -79,9 +79,9 @@ shader = SubResource("Shader_c5rl4")
 shader_parameter/particles_anim_h_frames = 10
 shader_parameter/particles_anim_v_frames = 1
 shader_parameter/particles_anim_loop = false
-shader_parameter/color_max = 128.0
 shader_parameter/color_light = SubResource("GradientTexture1D_gn8fx")
 shader_parameter/color_shadow = SubResource("GradientTexture1D_30t8d")
+shader_parameter/color_max = 128.0
 
 [sub_resource type="Shader" id="Shader_0lmvg"]
 code = "// NOTE: Shader automatically converted from Godot Engine 4.1.stable's ParticleProcessMaterial.
@@ -333,7 +333,8 @@ shader_parameter/scale_texture = SubResource("CurveTexture_rkh4u")
 texture_filter = 1
 material = SubResource("ShaderMaterial_cags6")
 emitting = false
-amount = 20
+amount = 40
 process_material = SubResource("ShaderMaterial_3vvij")
 texture = ExtResource("1_40efo")
 lifetime = 0.45
+visibility_rect = Rect2(-300, -300, 600, 600)

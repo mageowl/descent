@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ResourcePool" load_steps=8 format=3 uid="uid://mubl11qqqfpa"]
+
+[ext_resource type="PackedScene" uid="uid://brdq54i4vt2t0" path="res://scenes/world/rooms/horz_01.tscn" id="1_54kmy"]
+[ext_resource type="PackedScene" uid="uid://ii2w27jrwi6c" path="res://scenes/world/rooms/horz_02.tscn" id="2_3gbi8"]
+[ext_resource type="Script" uid="uid://rmyoyy1vrlqy" path="res://global/classes/resource_pool.gd" id="2_mvw05"]
+[ext_resource type="PackedScene" uid="uid://cubk7dbi2fm8p" path="res://scenes/world/rooms/horz_03.tscn" id="3_2le80"]
+[ext_resource type="PackedScene" uid="uid://bgsaoe0heqyu5" path="res://scenes/world/rooms/horz_04.tscn" id="4_yf0kh"]
+[ext_resource type="PackedScene" uid="uid://c3krak5wrcv54" path="res://scenes/world/rooms/left_up_01.tscn" id="5_sl855"]
+[ext_resource type="PackedScene" uid="uid://dl6uaikhvmugh" path="res://scenes/world/rooms/left_down_01.tscn" id="6_j06ua"]
+
+[resource]
+script = ExtResource("2_mvw05")
+items = Array[Resource]([ExtResource("1_54kmy"), ExtResource("2_3gbi8"), ExtResource("3_2le80"), ExtResource("4_yf0kh"), ExtResource("5_sl855"), ExtResource("6_j06ua")])
+metadata/_edit_pinned_properties_ = [&"items"]

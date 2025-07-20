@@ -13,7 +13,7 @@ void fragment() {
 		c.rgb /= c.a;
 		COLOR *= c;
 	} else if (s.a > 0.0001) {
-		COLOR = shadow_color; 
+		COLOR = shadow_color;
 	} else COLOR = vec4(0);
 }
 

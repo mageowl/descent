@@ -5,13 +5,11 @@ var mod_points: Dictionary = {}
 var mod_target: Object
 
 func _get(property):
-	print("prop of ", mod_target.name, " is ", mod_points)
 	if mod_points.has(property):
 		return mod_points[property]
 
 func _init(object: Object, modified_methods: Array):
 	mod_target = object
-	print("mod target ", object, " requested ", modified_methods)
 	
 	for method in modified_methods:
 		mod_points[method] = ModPoint.new(mod_target, method)

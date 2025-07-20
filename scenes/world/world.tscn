@@ -1,0 +1,17 @@
+[gd_scene load_steps=5 format=3 uid="uid://b863wjg0q0omy"]
+
+[ext_resource type="Script" uid="uid://cwlakfltt1ehd" path="res://scenes/world/world.gd" id="1_cfqim"]
+[ext_resource type="TileSet" uid="uid://cg5rtat1xuxel" path="res://scenes/world/tileset.tres" id="1_d68y2"]
+[ext_resource type="Resource" uid="uid://boni8m71ff5j5" path="res://scenes/world/templates/temple.tres" id="2_yjlv6"]
+[ext_resource type="PackedScene" uid="uid://bo72lxhabqf37" path="res://scenes/camera/debug_camera.tscn" id="4_id0tb"]
+
+[node name="World" type="TileMap"]
+tile_set = ExtResource("1_d68y2")
+format = 2
+layer_0/name = "nav"
+layer_1/name = "level"
+script = ExtResource("1_cfqim")
+template = ExtResource("2_yjlv6")
+
+[node name="Camera2D" parent="." instance=ExtResource("4_id0tb")]
+position = Vector2(160, 88)

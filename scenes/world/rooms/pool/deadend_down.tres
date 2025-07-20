@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="ResourcePool" load_steps=3 format=3 uid="uid://b8gn4s7ii4j4o"]
+
+[ext_resource type="PackedScene" uid="uid://bfdqkv77vlqt7" path="res://scenes/world/rooms/deadend_down.tscn" id="1_7p03t"]
+[ext_resource type="Script" uid="uid://rmyoyy1vrlqy" path="res://global/classes/resource_pool.gd" id="1_k640a"]
+
+[resource]
+script = ExtResource("1_k640a")
+items = Array[Resource]([ExtResource("1_7p03t")])

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="WorldTemplate" load_steps=3 format=3 uid="uid://boni8m71ff5j5"]
+
+[ext_resource type="Script" uid="uid://b3d2qlesc75l8" path="res://scenes/world/world_template.gd" id="1_qdhjn"]
+[ext_resource type="PackedScene" uid="uid://b2ynlikwc8m27" path="res://scenes/world/rooms/start_temple.tscn" id="2_oa2s2"]
+
+[resource]
+script = ExtResource("1_qdhjn")
+tileset = 1
+length_min = 5
+length_max = 7
+modifier_min = 3
+modifier_max = 4
+start_room = ExtResource("2_oa2s2")

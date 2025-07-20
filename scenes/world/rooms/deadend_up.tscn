@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=3 uid="uid://q4fgmblu2uq1"]
+
+[ext_resource type="TileSet" uid="uid://cg5rtat1xuxel" path="res://scenes/world/tileset.tres" id="1_f2sti"]
+
+[node name="RoomHorizontal01" type="TileMap"]
+tile_set = ExtResource("1_f2sti")
+format = 2
+layer_0/name = "block"
+layer_0/tile_data = PackedInt32Array(7, 196608, 5, 6, 196608, 5, 5, 196608, 5, 4, 196608, 5, 3, 196608, 5, 2, 196608, 5, 1, 196608, 5, 0, 524288, 0, 65536, 262144, 3, 9, 851968, 0, 8, 196608, 5, 65545, 65536, 4)
+layer_1/name = "ctrl"
+layer_1/modulate = Color(1, 0, 1, 1)
+layer_1/tile_data = PackedInt32Array(65537, 983040, 1)

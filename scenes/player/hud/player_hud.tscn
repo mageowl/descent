@@ -1,0 +1,102 @@
+[gd_scene load_steps=10 format=3 uid="uid://5tig7m3lmnjq"]
+
+[ext_resource type="Script" uid="uid://dun7wno2rnkcq" path="res://scenes/player/hud/player_hud.gd" id="1_spp8o"]
+[ext_resource type="Texture2D" uid="uid://cke5o65esxoxu" path="res://scenes/player/hud/icons/john-head.png" id="2_pxyf5"]
+[ext_resource type="Texture2D" uid="uid://cbmqbgp04uv51" path="res://scenes/player/hud/widgets/background.png" id="2_sp2fv"]
+[ext_resource type="Texture2D" uid="uid://bk8tu4a1lk73g" path="res://scenes/player/hud/icons/p1.png" id="3_votrx"]
+[ext_resource type="Texture2D" uid="uid://celwq1tmttg0x" path="res://scenes/player/hud/widgets/bar.png" id="5_vlf7p"]
+[ext_resource type="Texture2D" uid="uid://yr37s77urpdw" path="res://scenes/player/hud/widgets/bar-hp.png" id="6_o1xd1"]
+[ext_resource type="Texture2D" uid="uid://bmmpbgbld2r2k" path="res://scenes/player/hud/icons/heart.png" id="7_vkjca"]
+[ext_resource type="Texture2D" uid="uid://b6wfm3sjx8s65" path="res://scenes/player/marker-1.png" id="8_kp20c"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_86nqe"]
+font_size = 8
+
+[node name="PlayerHUD" type="Control"]
+custom_minimum_size = Vector2(56, 28)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 56.0
+offset_bottom = 28.0
+script = ExtResource("1_spp8o")
+
+[node name="Background" type="NinePatchRect" parent="."]
+layout_mode = 0
+offset_right = 56.0
+offset_bottom = 28.0
+texture = ExtResource("2_sp2fv")
+patch_margin_left = 1
+patch_margin_top = 1
+patch_margin_right = 1
+patch_margin_bottom = 1
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="Headshot" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 12.0
+offset_bottom = 12.0
+texture = ExtResource("2_pxyf5")
+
+[node name="PlayerIndex" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 4.0
+offset_right = 23.0
+offset_bottom = 10.0
+texture = ExtResource("3_votrx")
+stretch_mode = 2
+
+[node name="HP" type="Label" parent="."]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 3.0
+offset_right = 54.0
+offset_bottom = 12.0
+text = "16"
+label_settings = SubResource("LabelSettings_86nqe")
+horizontal_alignment = 2
+
+[node name="HealthBar" type="TextureProgressBar" parent="."]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 12.0
+offset_right = 54.0
+offset_bottom = 16.0
+max_value = 20.0
+value = 10.0
+texture_under = ExtResource("5_vlf7p")
+texture_progress = ExtResource("6_o1xd1")
+texture_progress_offset = Vector2(8, 1)
+
+[node name="HeartIcon" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 11.0
+offset_right = 10.0
+offset_bottom = 19.0
+pivot_offset = Vector2(4, 4)
+texture = ExtResource("7_vkjca")
+stretch_mode = 2
+
+[node name="Weapon1" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 41.0
+offset_top = 16.0
+offset_right = 53.0
+offset_bottom = 28.0
+
+[node name="Weapon2" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 29.0
+offset_top = 16.0
+offset_right = 41.0
+offset_bottom = 28.0
+
+[node name="WeaponIndicator" type="Sprite2D" parent="."]
+position = Vector2(47, 28)
+texture = ExtResource("8_kp20c")
+offset = Vector2(0, -0.5)
+flip_v = true
+region_enabled = true
+region_rect = Rect2(0, 5, 8, 3)
